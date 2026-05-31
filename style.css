@@ -1196,7 +1196,7 @@ body.theme-dark .nav-pill {
     transition: margin-top 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease, transform 0.4s ease;
 }
 
-/* Fixed Floating Language Cycle Button — CSS 3D Globe */
+/* Fixed Floating Language Cycle Button — Advanced CSS 3D Globe */
 .fixed-lang-btn {
     position: fixed;
     top: 12px;
@@ -1217,57 +1217,137 @@ body.theme-dark .nav-pill {
     outline: none;
 }
 
-/* The 3D Globe */
+/* ── The 3D Globe ────────────────────────────────── */
 .css-globe {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    border: 2px solid currentColor;
+    border: 1.5px solid currentColor;
     position: relative;
-    perspective: 60px;
-    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.35));
+    transform: rotate(-23.5deg); /* Earth's axial tilt */
+    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.35));
+    transition: filter 0.3s ease;
 }
 
-/* Equator line */
+/* Latitude lines (equator + parallels) + 3D sphere shading */
 .css-globe::before {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 0;
-    border-top: 1.5px solid currentColor;
+    inset: 0;
+    border-radius: 50%;
+    background:
+        /* Equator */
+        linear-gradient(
+            transparent calc(50% - 0.5px),
+            currentColor calc(50% - 0.5px),
+            currentColor calc(50% + 0.5px),
+            transparent calc(50% + 0.5px)
+        ),
+        /* Northern parallel (Tropic of Cancer) */
+        linear-gradient(
+            transparent calc(28% - 0.4px),
+            currentColor calc(28% - 0.4px),
+            currentColor calc(28% + 0.4px),
+            transparent calc(28% + 0.4px)
+        ),
+        /* Southern parallel (Tropic of Capricorn) */
+        linear-gradient(
+            transparent calc(72% - 0.4px),
+            currentColor calc(72% - 0.4px),
+            currentColor calc(72% + 0.4px),
+            transparent calc(72% + 0.4px)
+        ),
+        /* 3D sphere shading — highlight top-left, shadow bottom-right */
+        radial-gradient(
+            circle at 30% 25%,
+            rgba(255, 255, 255, 0.2) 0%,
+            transparent 55%,
+            rgba(0, 0, 0, 0.12) 100%
+        );
+    pointer-events: none;
 }
 
-/* Rotating meridian ellipse — this is what creates the 3D spin */
+/* Atmosphere glow ring */
 .css-globe::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        transparent 52%,
+        rgba(197, 155, 39, 0.1) 75%,
+        transparent 100%
+    );
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* ── Rotating Meridians Container ────────────────── */
+.globe-axis {
+    position: absolute;
+    inset: 0;
+    perspective: 50px;
+}
+
+/* Meridian 1 */
+.globe-axis::before {
     content: '';
     position: absolute;
     top: -1px;
     bottom: -1px;
-    left: 3px;
-    right: 3px;
-    border: 1.5px solid currentColor;
+    left: 18%;
+    right: 18%;
+    border: 1px solid currentColor;
     border-radius: 50%;
-    animation: globe-3d-meridian 4s linear infinite;
+    animation: globe-meridian-rotate 5s linear infinite;
 }
 
-@keyframes globe-3d-meridian {
+/* Meridian 2 — 90° offset */
+.globe-axis::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    bottom: -1px;
+    left: 18%;
+    right: 18%;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    animation: globe-meridian-rotate 5s linear infinite;
+    animation-delay: -2.5s;
+}
+
+@keyframes globe-meridian-rotate {
     0%   { transform: rotateY(0deg); }
     100% { transform: rotateY(360deg); }
 }
 
+/* ── Theme & Interaction ─────────────────────────── */
 body.theme-dark .fixed-lang-btn {
     color: var(--color-gold);
 }
 
 .fixed-lang-btn:hover {
     color: #ffffff;
-    filter: drop-shadow(0 0 8px rgba(197, 155, 39, 0.6));
+}
+
+.fixed-lang-btn:hover .css-globe {
+    filter: drop-shadow(0 0 10px rgba(197, 155, 39, 0.6))
+           drop-shadow(0 0 20px rgba(197, 155, 39, 0.15));
 }
 
 .fixed-lang-btn:hover .css-globe::after {
-    animation-duration: 1.5s;
+    background: radial-gradient(
+        circle,
+        transparent 48%,
+        rgba(255, 255, 255, 0.15) 70%,
+        transparent 100%
+    );
+}
+
+.fixed-lang-btn:hover .globe-axis::before,
+.fixed-lang-btn:hover .globe-axis::after {
+    animation-duration: 2s;
 }
 
 /* Hidden States in Zen Mode */
