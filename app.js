@@ -244,12 +244,12 @@ let audioCtx = null;
 let begenaGain = null;
 let begenaInterval = null;
 
-function ensureAudioCtx() {
+async function ensureAudioCtx() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
     if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
+        await audioCtx.resume();
     }
     return audioCtx;
 }
@@ -261,9 +261,9 @@ function updateAudioVolume(volume) {
     }
 }
 
-function startBegenaPlucks() {
+async function startBegenaPlucks() {
     try {
-        const ctx = ensureAudioCtx();
+        const ctx = await ensureAudioCtx();
         stopBegenaPlucks();
         
         begenaGain = ctx.createGain();
@@ -710,9 +710,9 @@ function setupEventListeners() {
         });
     });
 
-    els.audioToggle.addEventListener('change', (e) => {
+    els.audioToggle.addEventListener('change', async (e) => {
         if (e.target.checked) {
-            startBegenaPlucks();
+            await startBegenaPlucks();
         } else {
             stopBegenaPlucks();
         }
@@ -760,6 +760,9 @@ function setupEventListeners() {
     });
 
     document.addEventListener('click', (e) => {
+        if (audioCtx && audioCtx.state === 'suspended' && els.audioToggle.checked) {
+            audioCtx.resume().catch(err => console.log('AudioContext resume failed:', err));
+        }
         if (els.settingsPanel && !els.settingsPanel.classList.contains('hidden') &&
             !els.settingsPanel.contains(e.target) &&
             !els.settingsToggleBtn.contains(e.target) &&
