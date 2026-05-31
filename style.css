@@ -1251,12 +1251,6 @@ body.theme-dark .fixed-lang-btn {
     transition: padding-top 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* Fade settings button completely in Zen Mode scrolling to not distract */
-.fixed-lang-btn.zen-hidden {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-80px);
-}
 
 /* Fixed Floating Settings Button */
 .fixed-settings-btn {
@@ -1291,12 +1285,6 @@ body.theme-dark .fixed-settings-btn {
     box-shadow: 0 6px 16px rgba(197, 155, 39, 0.4);
 }
 
-/* Fade settings button completely in Zen Mode scrolling to not distract */
-.fixed-settings-btn.zen-hidden {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-80px);
-}
 
 /* Scroll Custom Spacings options */
 .stanza-paragraph {
