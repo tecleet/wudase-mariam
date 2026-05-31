@@ -241,89 +241,38 @@ function loadState() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-let audioCtx = null;
-let begenaGain = null;
-let begenaInterval = null;
+let begenaAudio = null;
 
-async function ensureAudioCtx() {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function getBegenaAudio() {
+    if (!begenaAudio) {
+        begenaAudio = new Audio('intro.mp3');
+        begenaAudio.loop = true;
     }
-    if (audioCtx.state === 'suspended') {
-        await audioCtx.resume();
-    }
-    return audioCtx;
+    return begenaAudio;
 }
 
 function updateAudioVolume(volume) {
-    const t = audioCtx ? audioCtx.currentTime : 0;
-    if (begenaGain && audioCtx) {
-        begenaGain.gain.setValueAtTime((volume / 100) * 0.15, t);
+    const audio = getBegenaAudio();
+    if (audio) {
+        audio.volume = volume / 100;
     }
 }
 
 async function startBegenaPlucks() {
     try {
-        const ctx = await ensureAudioCtx();
-        stopBegenaPlucks();
-        
-        begenaGain = ctx.createGain();
-        begenaGain.gain.setValueAtTime((state.audioVolume / 100) * 0.15, ctx.currentTime);
-        begenaGain.connect(ctx.destination);
-        
-        const scale = [110, 130.81, 146.83, 164.81, 196.00, 220.00];
-        let noteIndex = 0;
-        
-        function pluckNote() {
-            const freq = scale[noteIndex % scale.length];
-            noteIndex++;
-            const now = ctx.currentTime;
-            
-            const osc1 = ctx.createOscillator();
-            osc1.type = 'triangle';
-            osc1.frequency.setValueAtTime(freq, now);
-            
-            const osc2 = ctx.createOscillator();
-            osc2.type = 'sawtooth';
-            osc2.frequency.setValueAtTime(freq * 2.01, now);
-            
-            const envGain = ctx.createGain();
-            envGain.gain.setValueAtTime(0.35 + Math.random() * 0.15, now);
-            envGain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
-            
-            const lpf = ctx.createBiquadFilter();
-            lpf.type = 'lowpass';
-            lpf.frequency.setValueAtTime(800 + Math.random() * 400, now);
-            lpf.Q.setValueAtTime(2.5, now);
-            lpf.frequency.exponentialRampToValueAtTime(200, now + 2.0);
-            
-            const buzzGain = ctx.createGain();
-            buzzGain.gain.setValueAtTime(0.06, now);
-            buzzGain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
-            
-            osc1.connect(lpf);
-            lpf.connect(envGain);
-            osc2.connect(buzzGain);
-            buzzGain.connect(envGain);
-            envGain.connect(begenaGain);
-            
-            osc1.start(now);
-            osc2.start(now);
-            osc1.stop(now + 3);
-            osc2.stop(now + 2);
-        }
-        
-        pluckNote();
-        begenaInterval = setInterval(() => { pluckNote(); }, 2000 + Math.random() * 800);
+        const audio = getBegenaAudio();
+        audio.volume = state.audioVolume / 100;
+        await audio.play();
     } catch (e) {
-        console.error('Begena init failed:', e);
+        console.log('Begena play deferred until user interaction:', e);
     }
 }
 
-
 function stopBegenaPlucks() {
-    if (begenaInterval) { clearInterval(begenaInterval); begenaInterval = null; }
-    if (begenaGain) { try { begenaGain.disconnect(); } catch (e) {} begenaGain = null; }
+    const audio = getBegenaAudio();
+    if (audio) {
+        audio.pause();
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -762,8 +711,8 @@ function setupEventListeners() {
     });
 
     document.addEventListener('click', (e) => {
-        if (audioCtx && audioCtx.state === 'suspended' && els.audioToggle.checked) {
-            audioCtx.resume().catch(err => console.log('AudioContext resume failed:', err));
+        if (begenaAudio && begenaAudio.paused && els.audioToggle.checked) {
+            begenaAudio.play().catch(err => console.log('Audio resume on click failed:', err));
         }
         if (els.settingsPanel && !els.settingsPanel.classList.contains('hidden') &&
             !els.settingsPanel.contains(e.target) &&
