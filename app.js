@@ -840,13 +840,9 @@ function setZenHidden(hidden) {
     if (hidden) {
         els.controlBar.classList.add('zen-hidden');
         els.toplineNav.classList.add('zen-hidden');
-        els.settingsToggleBtn.classList.add('zen-hidden');
-        if (els.langCycleFloatingBtn) els.langCycleFloatingBtn.classList.add('zen-hidden');
     } else {
         els.controlBar.classList.remove('zen-hidden');
         els.toplineNav.classList.remove('zen-hidden');
-        els.settingsToggleBtn.classList.remove('zen-hidden');
-        if (els.langCycleFloatingBtn) els.langCycleFloatingBtn.classList.remove('zen-hidden');
     }
 }
 
