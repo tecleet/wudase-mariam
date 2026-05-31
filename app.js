@@ -173,6 +173,7 @@ function initializeApp() {
     renderSidebarMenu();
     renderToplineNav();
     applyStateToUI();
+    init3DGlobe();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1102,4 +1103,161 @@ function applyStateToUI() {
     }
     
     selectSection(state.currentSection);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 17. 3D Rotating Wireframe Globe Animation (Canvas)
+// ═══════════════════════════════════════════════════════════════
+
+function init3DGlobe() {
+    const canvas = document.getElementById('globe-canvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    
+    // Handle High-DPI / Retina screens
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = 28 * dpr;
+    canvas.height = 28 * dpr;
+    ctx.scale(dpr, dpr);
+
+    const cx = 14;
+    const cy = 14;
+    const R = 12; // Radius of the globe (leaving 2px margin)
+    
+    // Viewing geometry params
+    const axialTilt = -23.4 * Math.PI / 180; // Sideways tilt (Z-axis rotation)
+    const viewElevation = 15 * Math.PI / 180; // Looking down from above (X-axis rotation)
+    
+    let spinAngle = 0;
+    
+    // Define latitude and longitude lines in degrees
+    const latitudes = [-60, -30, 0, 30, 60]; 
+    const longitudes = [0, 30, 60, 90, 120, 150]; 
+
+    // Number of segments to use for drawing a circle
+    const steps = 60;
+
+    function animate() {
+        ctx.clearRect(0, 0, 28, 28);
+        
+        // Spin the globe over time (left-to-right rotation)
+        spinAngle += 0.012; 
+        if (spinAngle > 2 * Math.PI) {
+            spinAngle -= 2 * Math.PI;
+        }
+
+        // Fetch style colors dynamically from button (white on hover, gold otherwise)
+        const btn = document.getElementById('lang-cycle-floating-btn');
+        let strokeColor = '#c59b27'; // fallback gold
+        if (btn) {
+            strokeColor = window.getComputedStyle(btn).color || strokeColor;
+        }
+
+        ctx.strokeStyle = strokeColor;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+
+        // 1. Draw outer silhouette boundary circle
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+        ctx.lineWidth = 1.3; // Slightly thicker boundary
+        ctx.stroke();
+
+        ctx.lineWidth = 0.8; // Thin wireframe interior lines
+
+        // Helper to project 3D point (x, y, z) to 2D screen coordinates with tilts
+        function project(x, y, z) {
+            // Apply Y-rotation (spin)
+            const cosS = Math.cos(spinAngle);
+            const sinS = Math.sin(spinAngle);
+            const xRot = x * cosS + z * sinS;
+            const yRot = y;
+            const zRot = -x * sinS + z * cosS;
+
+            // Apply axial tilt around Z-axis
+            const cosT = Math.cos(axialTilt);
+            const sinT = Math.sin(axialTilt);
+            const xTilted = xRot * cosT - yRot * sinT;
+            const yTilted = xRot * sinT + yRot * cosT;
+            const zTilted = zRot;
+
+            // Apply viewing elevation tilt around X-axis
+            const cosE = Math.cos(viewElevation);
+            const sinE = Math.sin(viewElevation);
+            const xProj = xTilted;
+            const yProj = yTilted * cosE - zTilted * sinE;
+            const zProj = yTilted * sinE + zTilted * cosE;
+
+            return {
+                x: cx + xProj,
+                y: cy - yProj, // Canvas Y goes down
+                z: zProj // depth (positive is front-facing)
+            };
+        }
+
+        // Draw parallels (latitude lines)
+        latitudes.forEach(latDeg => {
+            const phi = latDeg * Math.PI / 180;
+            const rLat = R * Math.cos(phi);
+            const yLat = R * Math.sin(phi);
+
+            ctx.beginPath();
+            let lastFront = false;
+
+            for (let i = 0; i <= steps; i++) {
+                const theta = (i / steps) * 2 * Math.PI;
+                const x = rLat * Math.sin(theta);
+                const y = yLat;
+                const z = rLat * Math.cos(theta);
+
+                const proj = project(x, y, z);
+
+                if (proj.z > 0) {
+                    if (!lastFront) {
+                        ctx.moveTo(proj.x, proj.y);
+                    } else {
+                        ctx.lineTo(proj.x, proj.y);
+                    }
+                    lastFront = true;
+                } else {
+                    lastFront = false;
+                }
+            }
+            ctx.stroke();
+        });
+
+        // Draw meridians (longitude lines)
+        longitudes.forEach(longDeg => {
+            const lambda = longDeg * Math.PI / 180;
+
+            ctx.beginPath();
+            let lastFront = false;
+
+            for (let i = 0; i <= steps; i++) {
+                const t = (i / steps) * 2 * Math.PI;
+                const x = R * Math.cos(t) * Math.sin(lambda);
+                const y = R * Math.sin(t);
+                const z = R * Math.cos(t) * Math.cos(lambda);
+
+                const proj = project(x, y, z);
+
+                if (proj.z > 0) {
+                    if (!lastFront) {
+                        ctx.moveTo(proj.x, proj.y);
+                    } else {
+                        ctx.lineTo(proj.x, proj.y);
+                    }
+                    lastFront = true;
+                } else {
+                    lastFront = false;
+                }
+            }
+            ctx.stroke();
+        });
+
+        requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
 }

@@ -1196,7 +1196,7 @@ body.theme-dark .nav-pill {
     transition: margin-top 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease, transform 0.4s ease;
 }
 
-/* Fixed Floating Language Cycle Button — Animated SVG Globe */
+/* Fixed Floating Language Cycle Button — Math 3D Canvas Globe */
 .fixed-lang-btn {
     position: fixed;
     top: 12px;
@@ -1217,9 +1217,12 @@ body.theme-dark .nav-pill {
     outline: none;
 }
 
-.fixed-lang-btn .globe-svg {
+.fixed-lang-btn canvas {
+    width: 28px;
+    height: 28px;
+    display: block;
     filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
-    transition: filter 0.3s ease, color 0.3s ease;
+    transition: filter 0.3s ease;
 }
 
 body.theme-dark .fixed-lang-btn {
@@ -1230,7 +1233,7 @@ body.theme-dark .fixed-lang-btn {
     color: #ffffff;
 }
 
-.fixed-lang-btn:hover .globe-svg {
+.fixed-lang-btn:hover canvas {
     filter: drop-shadow(0 0 8px rgba(197, 155, 39, 0.6))
            drop-shadow(0 0 16px rgba(197, 155, 39, 0.2));
 }
