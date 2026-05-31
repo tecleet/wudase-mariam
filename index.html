@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ውዳሴ ማርያም - Wudase Mariam Book</title>
+    <meta name="description" content="ውዳሴ ማርያም በግዕዝ፣ በአማርኛ እና በእንግሊዝኛ - Read the Praises of the Virgin Mary in Ge'ez, Amharic, and English with traditional manuscript styling and side-by-side viewing.">
+    
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600&family=Noto+Sans+Ethiopic:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Link to the styling stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-vellum">
+
+
+    <div class="app-container">
+        <!-- Collapsible Navigation Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h2>ውዳሴ ማርያም</h2>
+                <p>Wudase Mariam</p>
+                <button id="close-sidebar-btn" class="icon-btn close-btn" aria-label="Close menu">&times;</button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul id="prayer-list">
+                    <!-- Dynamic navigation list items will be injected here -->
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>© የኢትዮጵያ ኦርቶዶክስ ተዋሕዶ ቤተ ክርስቲያን</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Glassmorphism Top Control Bar -->
+            <header id="control-bar" class="control-bar">
+                <div class="control-left">
+                    <button id="menu-toggle-btn" class="icon-btn menu-btn" aria-label="Open menu">
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                        </svg>
+                    </button>
+                    <h1 id="app-title" class="app-title">ውዳሴ ማርያም</h1>
+                </div>
+
+                <div class="control-right">
+                    <!-- Layout Mode (Single vs. Split Screen) -->
+                    <div class="layout-controls">
+                        <button id="layout-single-btn" class="icon-btn layout-btn active" title="Single Column View" aria-label="Single view">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+                            </svg>
+                        </button>
+                        <button id="layout-split-btn" class="icon-btn layout-btn" title="Split Screen View" aria-label="Split view">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 14H5V5h6v14zm8 0h-6V5h6v14z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Topline Horizontal Scroll Navigation -->
+            <nav id="topline-nav" class="topline-nav" aria-label="Horizontal section navigation">
+                <!-- Navigation pills injected here dynamically -->
+            </nav>
+
+            <!-- Floating Settings Panel (Glassmorphism Modal) -->
+            <div id="settings-panel" class="settings-panel hidden">
+                <div class="settings-header">
+                    <div class="settings-header-left">
+                        <svg viewBox="0 0 24 24" width="18" height="18" class="settings-header-icon"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                        <span>ቅንብሮች</span>
+                    </div>
+                    <button id="close-settings-btn" class="close-panel-btn" aria-label="Close settings">
+                        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                
+                <div class="settings-body">
+                    <!-- Search -->
+                    <div class="s-search-wrap" data-tooltip="ቃላት መፈለጊያ / Search text">
+                        <svg class="s-search-icon" viewBox="0 0 24 24" width="16" height="16"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M16 16l4.5 4.5"/></svg>
+                        <input type="text" id="search-input" placeholder="ፈልግ..." aria-label="Search prayers">
+                    </div>
+
+                    <!-- === Toggle Grid === -->
+                    <div class="s-grid" id="settings-toggle-grid">
+
+                        <!-- Auto-Scroll -->
+                        <label class="s-card" data-tooltip="ራስ-ማሸብለያ / Auto-scroll reading" data-stagger="0">
+                            <input type="checkbox" id="auto-scroll-toggle">
+                            <div class="s-card-face">
+                                <svg viewBox="0 0 24 24" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12l7 7 7-7"/></svg>
+                                <span class="s-card-dot"></span>
+                            </div>
+                        </label>
+
+                        <!-- Double Tap Pause -->
+                        <label class="s-card" data-tooltip="ሁለቴ መታ / Double-tap pause" data-stagger="1">
+                            <input type="checkbox" id="double-tap-pause-toggle">
+                            <div class="s-card-face">
+                                <svg viewBox="0 0 24 24" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M18 8V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M15 15l-2 5 1.5-.5L16 22l1-2-1.5.5L17 15z"/></svg>
+                                <span class="s-card-dot"></span>
+                            </div>
+                        </label>
+
+                        <!-- Play Audio -->
+                        <label class="s-card s-card-audio" data-tooltip="ዜማ አጫውት / Play audio" data-stagger="2">
+                            <input type="checkbox" id="audio-toggle">
+                            <div class="s-card-face">
+                                <svg viewBox="0 0 24 24" width="20" height="20" class="s-icon-play"><polygon points="6,3 20,12 6,21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                                <svg viewBox="0 0 24 24" width="20" height="20" class="s-icon-pause"><rect x="6" y="4" width="4" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="4" width="4" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                                <span class="s-card-dot"></span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- === Sliders Section === -->
+                    <div class="s-sliders">
+
+                        <!-- Font Size -->
+                        <div class="s-slider-row" data-tooltip="የፊደል መጠን / Text size">
+                            <div class="s-slider-icon">
+                                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+                            </div>
+                            <input type="range" id="font-size-slider" min="16" max="48" value="24" class="s-slider">
+                            <span id="font-size-val" class="s-slider-val">24</span>
+                        </div>
+
+                        <!-- Line Height -->
+                        <div class="s-slider-row" data-tooltip="የመስመር ርቀት / Line spacing">
+                            <div class="s-slider-icon">
+                                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M21 10H7M21 6H7M21 14H7M21 18H7"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M3 8l-1-1.5L3 5M3 16l-1 1.5L3 19"/></svg>
+                            </div>
+                            <input type="range" id="line-height-slider" min="15" max="30" value="21" class="s-slider">
+                            <span id="line-height-val" class="s-slider-val">2.1</span>
+                        </div>
+
+                        <!-- Scroll Speed -->
+                        <div class="s-slider-row" data-tooltip="የፍጥነት ማሸብለያ / Scroll speed">
+                            <div class="s-slider-icon">
+                                <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M12 12l4-4"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
+                            </div>
+                            <input type="range" id="scroll-speed-slider" min="1" max="10" value="3" class="s-slider">
+                            <span id="scroll-speed-val" class="s-slider-val">1.0</span>
+                        </div>
+
+                        <!-- Screen Dimmer -->
+                        <div class="s-slider-row" data-tooltip="መደብዘዣ / Night dimmer">
+                            <div class="s-slider-icon">
+                                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                            </div>
+                            <input type="range" id="screen-dimmer-slider" min="0" max="80" value="0" class="s-slider">
+                            <span id="screen-dimmer-val" class="s-slider-val">0</span>
+                        </div>
+
+                        <!-- Audio Volume -->
+                        <div class="s-slider-row" data-tooltip="የድምፅ መጠን / Audio volume">
+                            <div class="s-slider-icon">
+                                <svg viewBox="0 0 24 24" width="16" height="16"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                            </div>
+                            <input type="range" id="audio-volume-slider" min="0" max="100" value="80" class="s-slider">
+                            <span id="audio-volume-val" class="s-slider-val">80</span>
+                        </div>
+                    </div>
+
+                    <!-- === Selectors Section === -->
+                    <div class="s-selectors">
+                        <!-- Theme -->
+                        <div class="s-select-group" data-tooltip="ገጽታ / Theme preset">
+                            <div class="s-theme-row">
+                                <button class="s-theme-btn active" data-theme="theme-vellum" aria-label="Vellum theme">
+                                    <span class="s-theme-swatch s-swatch-vellum"></span>
+                                </button>
+                                <button class="s-theme-btn" data-theme="theme-light" aria-label="Light theme">
+                                    <span class="s-theme-swatch s-swatch-light"></span>
+                                </button>
+                                <button class="s-theme-btn" data-theme="theme-dark" aria-label="Dark theme">
+                                    <span class="s-theme-swatch s-swatch-dark"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Font + Audio Track -->
+                        <div class="s-dropdowns-row">
+                            <div class="s-drop-wrap" data-tooltip="ፊደል / Font family">
+                                <svg class="s-drop-icon" viewBox="0 0 24 24" width="14" height="14"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+                                <select id="font-family-select" class="s-select">
+                                    <option value="noto" selected>Noto</option>
+                                    <option value="sil">Abyssinica</option>
+                                    <option value="kefa">Kefa</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Readers Container (Supports Single or Split view) -->
+            <div id="readers-container" class="readers-container mode-single">
+                
+                <!-- Left/Main Column Reader -->
+                <article id="reader-left" class="reader-column">
+                    
+                    <div class="book-page">
+                        <!-- Cover Page Section (Shown initially) -->
+                        <section id="cover-page-left" class="cover-page">
+                            <div class="cover-wrapper">
+                                <img src="widase_mariam_header.png" alt="Wudase Mariam Ornamental Header" class="cover-header-img">
+                                <h1 class="cover-title">ውዳሴ ማርያም</h1>
+                                <p class="cover-subtitle">ቅዱስ ኤፍሬም ሶርያዊ የደረሰው የውዳሴና ጸሎት መጽሐፍ</p>
+                                <hr class="ornamental-divider">
+                                <p class="cover-description">
+                                    The Praises of the Virgin Mary, written by Saint Ephrem the Syrian. 
+                                    A liturgical masterpiece of the Ethiopian Orthodox Tewahedo Church.
+                                </p>
+                                <button class="start-reading-btn font-noto">ጸሎቱን ጀምር / Start Reading</button>
+                            </div>
+                        </section>
+
+                        <!-- Prayer Content Section -->
+                        <div id="prayer-display-left" class="prayer-display hidden">
+                            <h2 class="prayer-title font-noto" id="title-left"></h2>
+                            <div class="prayer-body font-noto" id="content-left"></div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Right Column Reader (Shown in Split Screen Mode) -->
+                <article id="reader-right" class="reader-column hidden">
+                    
+                    <div class="book-page">
+                        <!-- Cover Page Section -->
+                        <section id="cover-page-right" class="cover-page">
+                            <div class="cover-wrapper">
+                                <img src="widase_mariam_header.png" alt="Wudase Mariam Ornamental Header" class="cover-header-img">
+                                <h1 class="cover-title">ውዳሴ ማርያም</h1>
+                                <p class="cover-subtitle">Praise of the Virgin Mary</p>
+                                <hr class="ornamental-divider">
+                                <p class="cover-description">
+                                    Compare Ge'ez, Amharic, and English translations side-by-side. 
+                                    Enable split-screen view to view and synchronize stanzas.
+                                </p>
+                            </div>
+                        </section>
+
+                        <!-- Prayer Content Section -->
+                        <div id="prayer-display-right" class="prayer-display hidden">
+                            <h2 class="prayer-title font-noto" id="title-right"></h2>
+                            <div class="prayer-body font-noto" id="content-right"></div>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Fixed Floating Language Cycle Button -->
+    <button id="lang-cycle-floating-btn" class="fixed-lang-btn" aria-label="Cycle Language" title="ቋንቋ ቀያሪ / Cycle Language">
+        <svg viewBox="0 0 24 24" width="26" height="26">
+            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 0c-2.5 0-4.5 4.5-4.5 10s2 10 4.5 10 4.5-4.5 4.5-10S14.5 2 12 2zM2 12h20"/>
+        </svg>
+    </button>
+
+    <!-- Fixed Floating Settings Trigger Button -->
+    <button id="settings-toggle-btn" class="fixed-settings-btn" aria-label="Toggle settings" title="ቅንብሮች / Settings">
+        <svg viewBox="0 0 24 24" width="28" height="28">
+            <path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+        </svg>
+    </button>
+
+    <!-- Global Tooltip (positioned dynamically via JS) -->
+    <div id="global-tooltip" class="global-tooltip" aria-hidden="true"></div>
+
+    <!-- Screen Dimmer Overlay -->
+    <div id="screen-dimmer-overlay" class="screen-dimmer-overlay"></div>
+
+    <!-- Link to the script database and logic files -->
+    <script src="prayers.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
