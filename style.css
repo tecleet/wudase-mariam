@@ -1196,7 +1196,7 @@ body.theme-dark .nav-pill {
     transition: margin-top 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease, transform 0.4s ease;
 }
 
-/* Fixed Floating Language Cycle Button — Advanced CSS 3D Globe */
+/* Fixed Floating Language Cycle Button — Animated SVG Globe */
 .fixed-lang-btn {
     position: fixed;
     top: 12px;
@@ -1217,126 +1217,11 @@ body.theme-dark .nav-pill {
     outline: none;
 }
 
-/* ── The 3D Globe ────────────────────────────────── */
-.css-globe {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 1.5px solid currentColor;
-    position: relative;
-    transform: rotate(-23.5deg); /* Earth's axial tilt */
-    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.35));
-    transition: filter 0.3s ease;
+.fixed-lang-btn .globe-svg {
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+    transition: filter 0.3s ease, color 0.3s ease;
 }
 
-/* Latitude lines (equator + parallels) + 3D sphere shading */
-.css-globe::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background:
-        /* Equator */
-        linear-gradient(
-            transparent calc(50% - 0.5px),
-            currentColor calc(50% - 0.5px),
-            currentColor calc(50% + 0.5px),
-            transparent calc(50% + 0.5px)
-        ),
-        /* Northern parallel (Tropic of Cancer) */
-        linear-gradient(
-            transparent calc(28% - 0.4px),
-            currentColor calc(28% - 0.4px),
-            currentColor calc(28% + 0.4px),
-            transparent calc(28% + 0.4px)
-        ),
-        /* Southern parallel (Tropic of Capricorn) */
-        linear-gradient(
-            transparent calc(72% - 0.4px),
-            currentColor calc(72% - 0.4px),
-            currentColor calc(72% + 0.4px),
-            transparent calc(72% + 0.4px)
-        ),
-        /* 3D sphere shading — highlight top-left, shadow bottom-right */
-        radial-gradient(
-            circle at 30% 25%,
-            rgba(255, 255, 255, 0.2) 0%,
-            transparent 55%,
-            rgba(0, 0, 0, 0.12) 100%
-        );
-    pointer-events: none;
-}
-
-/* Atmosphere glow ring */
-.css-globe::after {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border-radius: 50%;
-    background: radial-gradient(
-        circle,
-        transparent 52%,
-        rgba(197, 155, 39, 0.1) 75%,
-        transparent 100%
-    );
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
-/* ── Rotating Meridians Container ────────────────── */
-.globe-axis {
-    position: absolute;
-    inset: 0;
-    perspective: 50px;
-}
-
-/* Meridian 1 — 0° */
-.globe-axis::before {
-    content: '';
-    position: absolute;
-    top: -1px;
-    bottom: -1px;
-    left: 18%;
-    right: 18%;
-    border: 1px solid currentColor;
-    border-radius: 50%;
-    animation: globe-meridian-rotate 5s linear infinite;
-}
-
-/* Meridian 2 — 120° offset */
-.globe-axis::after {
-    content: '';
-    position: absolute;
-    top: -1px;
-    bottom: -1px;
-    left: 18%;
-    right: 18%;
-    border: 1px solid currentColor;
-    border-radius: 50%;
-    animation: globe-meridian-rotate 5s linear infinite;
-    animation-delay: -1.667s;
-}
-
-/* Meridian 3 — 240° offset */
-.globe-axis .gm3 {
-    display: block;
-    position: absolute;
-    top: -1px;
-    bottom: -1px;
-    left: 18%;
-    right: 18%;
-    border: 1px solid currentColor;
-    border-radius: 50%;
-    animation: globe-meridian-rotate 5s linear infinite;
-    animation-delay: -3.333s;
-}
-
-@keyframes globe-meridian-rotate {
-    0%   { transform: rotateY(0deg); }
-    100% { transform: rotateY(360deg); }
-}
-
-/* ── Theme & Interaction ─────────────────────────── */
 body.theme-dark .fixed-lang-btn {
     color: var(--color-gold);
 }
@@ -1345,24 +1230,9 @@ body.theme-dark .fixed-lang-btn {
     color: #ffffff;
 }
 
-.fixed-lang-btn:hover .css-globe {
-    filter: drop-shadow(0 0 10px rgba(197, 155, 39, 0.6))
-           drop-shadow(0 0 20px rgba(197, 155, 39, 0.15));
-}
-
-.fixed-lang-btn:hover .css-globe::after {
-    background: radial-gradient(
-        circle,
-        transparent 48%,
-        rgba(255, 255, 255, 0.15) 70%,
-        transparent 100%
-    );
-}
-
-.fixed-lang-btn:hover .globe-axis::before,
-.fixed-lang-btn:hover .globe-axis::after,
-.fixed-lang-btn:hover .globe-axis .gm3 {
-    animation-duration: 2s;
+.fixed-lang-btn:hover .globe-svg {
+    filter: drop-shadow(0 0 8px rgba(197, 155, 39, 0.6))
+           drop-shadow(0 0 16px rgba(197, 155, 39, 0.2));
 }
 
 /* Hidden States in Zen Mode */
