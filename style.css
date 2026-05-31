@@ -1089,8 +1089,6 @@ body.theme-dark .cover-header-img {
     .fixed-settings-btn {
         right: 16px;
         top: 12px;
-        width: 46px;
-        height: 46px;
     }
     .fixed-lang-btn {
         right: 72px;
@@ -1252,37 +1250,43 @@ body.theme-dark .fixed-lang-btn {
 }
 
 
-/* Fixed Floating Settings Button */
+/* Fixed Floating Settings Button — bare rotating gear */
 .fixed-settings-btn {
     position: fixed;
-    top: 8px;
+    top: 12px;
     right: 24px;
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    background: var(--color-burgundy);
-    color: #ffffff;
-    border: 2px solid var(--color-gold);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    background: none;
+    color: var(--color-gold);
+    border: none;
+    box-shadow: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 140;
     outline: none;
+    animation: s-gear-spin 8s linear infinite;
+}
+
+.fixed-settings-btn svg {
+    width: 28px;
+    height: 28px;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
 }
 
 body.theme-dark .fixed-settings-btn {
-    background: var(--color-parchment-dark);
     color: var(--color-gold);
-    border-color: var(--color-gold);
 }
 
 .fixed-settings-btn:hover {
-    background: var(--color-gold);
-    color: var(--color-burgundy-dark);
-    transform: rotate(45deg) scale(1.08);
-    box-shadow: 0 6px 16px rgba(197, 155, 39, 0.4);
+    color: #ffffff;
+    animation: s-gear-spin 2s linear infinite;
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 8px rgba(197, 155, 39, 0.6));
 }
 
 
