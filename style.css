@@ -1215,7 +1215,13 @@ body.theme-dark .nav-pill {
     justify-content: center;
     z-index: 140;
     outline: none;
-    animation: s-gear-spin 12s linear infinite; /* slightly slower spin for the globe */
+    perspective: 200px;
+    animation: globe-spin 6s linear infinite;
+}
+
+@keyframes globe-spin {
+    from { transform: rotateY(0deg); }
+    to   { transform: rotateY(360deg); }
 }
 
 .fixed-lang-btn svg {
@@ -1230,8 +1236,7 @@ body.theme-dark .fixed-lang-btn {
 
 .fixed-lang-btn:hover {
     color: #ffffff;
-    animation: s-gear-spin 3s linear infinite;
-    transform: scale(1.15);
+    animation: globe-spin 2s linear infinite;
     filter: drop-shadow(0 0 8px rgba(197, 155, 39, 0.6));
 }
 
