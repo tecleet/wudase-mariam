@@ -808,7 +808,14 @@ function setupEventListeners() {
     els.readerLeft.querySelector('.book-page').addEventListener('dblclick', handleDoubleTapToPause);
     els.readerRight.querySelector('.book-page').addEventListener('dblclick', handleDoubleTapToPause);
 
-    const controlElements = [els.controlBar, els.toplineNav, els.settingsPanel, els.sidebar];
+    const controlElements = [
+        els.controlBar,
+        els.toplineNav,
+        els.settingsPanel,
+        els.sidebar,
+        els.settingsToggleBtn,
+        els.langCycleFloatingBtn
+    ];
     controlElements.forEach(el => {
         if (el) {
             el.addEventListener('mouseenter', () => {
@@ -829,6 +836,20 @@ function setupEventListeners() {
 // 12. Auto Scroll & Zen scrolling
 // ═══════════════════════════════════════════════════════════════
 
+function setZenHidden(hidden) {
+    if (hidden) {
+        els.controlBar.classList.add('zen-hidden');
+        els.toplineNav.classList.add('zen-hidden');
+        els.settingsToggleBtn.classList.add('zen-hidden');
+        if (els.langCycleFloatingBtn) els.langCycleFloatingBtn.classList.add('zen-hidden');
+    } else {
+        els.controlBar.classList.remove('zen-hidden');
+        els.toplineNav.classList.remove('zen-hidden');
+        els.settingsToggleBtn.classList.remove('zen-hidden');
+        if (els.langCycleFloatingBtn) els.langCycleFloatingBtn.classList.remove('zen-hidden');
+    }
+}
+
 function handleReaderScrollEvents(e) {
     const el = e.target;
     const currentScroll = el.scrollTop;
@@ -839,13 +860,11 @@ function handleReaderScrollEvents(e) {
         if (!isProgrammaticScroll) {
             if (currentScroll > lastScroll && currentScroll > 60) {
                 if (!state.autoScroll && els.settingsPanel.classList.contains('hidden') && !isHoveringControls) {
-                    els.controlBar.classList.add('zen-hidden');
-                    els.toplineNav.classList.add('zen-hidden');
+                    setZenHidden(true);
                     els.sidebar.classList.add('collapsed');
                 }
             } else if (currentScroll < lastScroll) {
-                els.controlBar.classList.remove('zen-hidden');
-                els.toplineNav.classList.remove('zen-hidden');
+                setZenHidden(false);
             }
         }
     }
@@ -858,15 +877,13 @@ function handleReaderScrollEvents(e) {
 }
 
 function showControlsTemp() {
-    els.controlBar.classList.remove('zen-hidden');
-    els.toplineNav.classList.remove('zen-hidden');
+    setZenHidden(false);
     
     if (controlsShowTimeout) clearTimeout(controlsShowTimeout);
     if (state.autoScroll) {
         controlsShowTimeout = setTimeout(() => {
             if (state.autoScroll && state.zenMode && els.settingsPanel.classList.contains('hidden') && !isHoveringControls) {
-                els.controlBar.classList.add('zen-hidden');
-                els.toplineNav.classList.add('zen-hidden');
+                setZenHidden(true);
             }
         }, 5000);
     }
@@ -881,8 +898,7 @@ function toggleAutoScroll() {
     if (state.autoScroll) {
         setTimeout(() => {
             if (state.autoScroll && state.zenMode && els.settingsPanel.classList.contains('hidden') && !isHoveringControls) {
-                els.controlBar.classList.add('zen-hidden');
-                els.toplineNav.classList.add('zen-hidden');
+                setZenHidden(true);
             }
         }, 1500);
 

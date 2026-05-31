@@ -265,6 +265,7 @@ body {
     display: flex;
     align-items: center;
     gap: 16px;
+    margin-right: 130px; /* Leave space for top-right fixed buttons */
 }
 
 /* Layout selection buttons */
@@ -1085,6 +1086,18 @@ body.theme-dark .cover-header-img {
     .cover-title {
         font-size: 32px;
     }
+    .fixed-settings-btn {
+        right: 16px;
+        top: 12px;
+        width: 46px;
+        height: 46px;
+    }
+    .fixed-lang-btn {
+        right: 72px;
+        top: 12px;
+        width: 46px;
+        height: 46px;
+    }
 }
 
 /* Scroll-driven reveal micro-animations */
@@ -1190,8 +1203,8 @@ body.theme-dark .nav-pill {
 /* Fixed Floating Language Cycle Button */
 .fixed-lang-btn {
     position: fixed;
-    bottom: 96px;
-    right: 24px;
+    top: 8px;
+    right: 88px;
     width: 54px;
     height: 54px;
     border-radius: 50%;
@@ -1220,15 +1233,6 @@ body.theme-dark .fixed-lang-btn {
     box-shadow: 0 6px 16px rgba(197, 155, 39, 0.4);
 }
 
-/* Fade language button slightly in Zen Mode scrolling to not distract */
-.fixed-lang-btn.zen-hidden {
-    opacity: 0.35;
-}
-
-.fixed-lang-btn.zen-hidden:hover {
-    opacity: 1;
-}
-
 /* Hidden States in Zen Mode */
 .control-bar.zen-hidden {
     margin-top: -70px; /* Slides the 70px header out of viewport */
@@ -1247,10 +1251,17 @@ body.theme-dark .fixed-lang-btn {
     transition: padding-top 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
+/* Fade settings button completely in Zen Mode scrolling to not distract */
+.fixed-lang-btn.zen-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-80px);
+}
+
 /* Fixed Floating Settings Button */
 .fixed-settings-btn {
     position: fixed;
-    bottom: 24px;
+    top: 8px;
     right: 24px;
     width: 54px;
     height: 54px;
@@ -1280,13 +1291,11 @@ body.theme-dark .fixed-settings-btn {
     box-shadow: 0 6px 16px rgba(197, 155, 39, 0.4);
 }
 
-/* Fade settings button slightly in Zen Mode scrolling to not distract */
+/* Fade settings button completely in Zen Mode scrolling to not distract */
 .fixed-settings-btn.zen-hidden {
-    opacity: 0.35;
-}
-
-.fixed-settings-btn.zen-hidden:hover {
-    opacity: 1;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-80px);
 }
 
 /* Scroll Custom Spacings options */
