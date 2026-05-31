@@ -1290,7 +1290,7 @@ body.theme-dark .nav-pill {
     perspective: 50px;
 }
 
-/* Meridian 1 */
+/* Meridian 1 — 0° */
 .globe-axis::before {
     content: '';
     position: absolute;
@@ -1303,7 +1303,7 @@ body.theme-dark .nav-pill {
     animation: globe-meridian-rotate 5s linear infinite;
 }
 
-/* Meridian 2 — 90° offset */
+/* Meridian 2 — 120° offset */
 .globe-axis::after {
     content: '';
     position: absolute;
@@ -1314,7 +1314,21 @@ body.theme-dark .nav-pill {
     border: 1px solid currentColor;
     border-radius: 50%;
     animation: globe-meridian-rotate 5s linear infinite;
-    animation-delay: -2.5s;
+    animation-delay: -1.667s;
+}
+
+/* Meridian 3 — 240° offset */
+.globe-axis .gm3 {
+    display: block;
+    position: absolute;
+    top: -1px;
+    bottom: -1px;
+    left: 18%;
+    right: 18%;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    animation: globe-meridian-rotate 5s linear infinite;
+    animation-delay: -3.333s;
 }
 
 @keyframes globe-meridian-rotate {
@@ -1346,7 +1360,8 @@ body.theme-dark .fixed-lang-btn {
 }
 
 .fixed-lang-btn:hover .globe-axis::before,
-.fixed-lang-btn:hover .globe-axis::after {
+.fixed-lang-btn:hover .globe-axis::after,
+.fixed-lang-btn:hover .globe-axis .gm3 {
     animation-duration: 2s;
 }
 
