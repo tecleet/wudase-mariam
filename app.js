@@ -245,7 +245,7 @@ let begenaAudio = null;
 
 function getBegenaAudio() {
     if (!begenaAudio) {
-        begenaAudio = new Audio('intro.mp3');
+        begenaAudio = new Audio('begena.mp3');
         begenaAudio.loop = true;
     }
     return begenaAudio;
