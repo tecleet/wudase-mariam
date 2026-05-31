@@ -434,18 +434,42 @@ function renderActivePrayer() {
     els.coverPageLeft.classList.add('hidden');
     els.prayerDisplayLeft.classList.remove('hidden');
     
-    setReaderFontFamily(els.contentLeft, state.leftLang);
+    let leftContent = prayerData.content[state.leftLang] || '';
+    let leftLangForFont = state.leftLang;
+    
+    // Fallback to Ge'ez if content is placeholder/missing (e.g. Melka Eyesus/Mariam)
+    if (leftContent.length < 100 && prayerData.content['ge'] && state.leftLang !== 'ge') {
+        const note = state.leftLang === 'am' ? 
+            "\n\n*(ማሳሰቢያ፡ ይህ ጸሎት በአማርኛ ትርጉም ስለማይገኝ በግዕዝ ቀርቧል።)*" : 
+            "\n\n*(Note: Since this prayer is not available in English translation, it is presented in Ge'ez.)*";
+        leftContent = prayerData.content['ge'] + note;
+        leftLangForFont = 'ge';
+    }
+    
+    setReaderFontFamily(els.contentLeft, leftLangForFont);
     els.titleLeft.innerHTML = prayerData.title[state.leftLang] || '';
-    els.contentLeft.innerHTML = processTextContent(prayerData.content[state.leftLang], state.leftLang);
+    els.contentLeft.innerHTML = processTextContent(leftContent, leftLangForFont);
     
     // Right Column
     if (state.layoutMode === 'split') {
         els.coverPageRight.classList.add('hidden');
         els.prayerDisplayRight.classList.remove('hidden');
         
-        setReaderFontFamily(els.contentRight, state.rightLang);
+        let rightContent = prayerData.content[state.rightLang] || '';
+        let rightLangForFont = state.rightLang;
+        
+        // Fallback to Ge'ez if content is placeholder/missing (e.g. Melka Eyesus/Mariam)
+        if (rightContent.length < 100 && prayerData.content['ge'] && state.rightLang !== 'ge') {
+            const note = state.rightLang === 'am' ? 
+                "\n\n*(ማሳሰቢያ፡ ይህ ጸሎት በአማርኛ ትርጉም ስለማይገኝ በግዕዝ ቀርቧል።)*" : 
+                "\n\n*(Note: Since this prayer is not available in English translation, it is presented in Ge'ez.)*";
+            rightContent = prayerData.content['ge'] + note;
+            rightLangForFont = 'ge';
+        }
+        
+        setReaderFontFamily(els.contentRight, rightLangForFont);
         els.titleRight.innerHTML = prayerData.title[state.rightLang] || '';
-        els.contentRight.innerHTML = processTextContent(prayerData.content[state.rightLang], state.rightLang);
+        els.contentRight.innerHTML = processTextContent(rightContent, rightLangForFont);
     } else {
         els.coverPageRight.classList.remove('hidden');
         els.prayerDisplayRight.classList.add('hidden');
