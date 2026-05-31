@@ -267,106 +267,58 @@ async function startBegenaPlucks() {
         stopBegenaPlucks();
         
         begenaGain = ctx.createGain();
-        begenaGain.gain.setValueAtTime((state.audioVolume / 100) * 0.18, ctx.currentTime);
+        begenaGain.gain.setValueAtTime((state.audioVolume / 100) * 0.15, ctx.currentTime);
         begenaGain.connect(ctx.destination);
         
-        // Lower octave scale: A1, C2, D2, E2, G2, A2 (authentic deep box-lyre tuning)
-        const scale = [55.00, 65.41, 73.42, 82.41, 98.00, 110.00];
+        const scale = [110, 130.81, 146.83, 164.81, 196.00, 220.00];
         let noteIndex = 0;
         
-        // Simple waveshaper curve for natural bridge buzzing distortion
-        const makeDistortionCurve = (amount = 50) => {
-            const n = 256;
-            const curve = new Float32Array(n);
-            for (let i = 0; i < n; ++i) {
-                const x = (i * 2) / n - 1;
-                // Soft clipping curve that mimics the leather bridge rattle
-                curve[i] = Math.tanh(x * amount) / Math.tanh(amount);
-            }
-            return curve;
-        };
-        const buzzCurve = makeDistortionCurve(4);
-        
         function pluckNote() {
-            // Cycle through notes slowly but randomize slightly for organic play style
-            if (Math.random() > 0.4) {
-                noteIndex = (noteIndex + 1) % scale.length;
-            } else {
-                noteIndex = (noteIndex + (Math.random() > 0.5 ? 2 : 5)) % scale.length;
-            }
-            const freq = scale[noteIndex];
+            const freq = scale[noteIndex % scale.length];
+            noteIndex++;
             const now = ctx.currentTime;
             
-            // --- 1. FUNDAMENTAL STRING SOUND (Triangle for warm body) ---
             const osc1 = ctx.createOscillator();
             osc1.type = 'triangle';
             osc1.frequency.setValueAtTime(freq, now);
-            // Add very subtle pitch drift (vibrato)
-            osc1.frequency.linearRampToValueAtTime(freq * 1.002, now + 1.5);
-            osc1.frequency.linearRampToValueAtTime(freq * 0.998, now + 3.5);
-            osc1.frequency.linearRampToValueAtTime(freq, now + 5.5);
-
-            // --- 2. BUZZING RATTLE SOUND (Sawtooth + Distortion + Bandpass) ---
+            
             const osc2 = ctx.createOscillator();
             osc2.type = 'sawtooth';
-            osc2.frequency.setValueAtTime(freq, now);
-            osc2.frequency.linearRampToValueAtTime(freq * 1.003, now + 2.0);
+            osc2.frequency.setValueAtTime(freq * 2.01, now);
             
-            // WaveShaper to add sharp harmonics mimicking the leather rattle against wood
-            const shaper = ctx.createWaveShaper();
-            shaper.curve = buzzCurve;
-            shaper.oversample = '4x';
+            const envGain = ctx.createGain();
+            envGain.gain.setValueAtTime(0.35 + Math.random() * 0.15, now);
+            envGain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
             
-            // Bandpass filter to isolate the characteristic frequencies of the Begena buzz
-            const lpfBuzz = ctx.createBiquadFilter();
-            lpfBuzz.type = 'bandpass';
-            lpfBuzz.frequency.setValueAtTime(450, now);
-            lpfBuzz.Q.setValueAtTime(4.0, now);
-            // Sweep the filter frequency down as the pluck decays
-            lpfBuzz.frequency.exponentialRampToValueAtTime(180, now + 3.0);
+            const lpf = ctx.createBiquadFilter();
+            lpf.type = 'lowpass';
+            lpf.frequency.setValueAtTime(800 + Math.random() * 400, now);
+            lpf.Q.setValueAtTime(2.5, now);
+            lpf.frequency.exponentialRampToValueAtTime(200, now + 2.0);
             
-            // --- 3. ENVELOPES ---
-            // Main string decay (runs for 5.8 seconds)
-            const mainEnv = ctx.createGain();
-            mainEnv.gain.setValueAtTime(0.001, now);
-            mainEnv.gain.linearRampToValueAtTime(0.4, now + 0.08); // Slight pluck attack
-            mainEnv.gain.exponentialRampToValueAtTime(0.08, now + 3.0);
-            mainEnv.gain.exponentialRampToValueAtTime(0.001, now + 5.8);
+            const buzzGain = ctx.createGain();
+            buzzGain.gain.setValueAtTime(0.06, now);
+            buzzGain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
             
-            // Buzz decay (decays much faster than the string itself)
-            const buzzEnv = ctx.createGain();
-            buzzEnv.gain.setValueAtTime(0.001, now);
-            buzzEnv.gain.linearRampToValueAtTime(0.22, now + 0.05);
-            buzzEnv.gain.exponentialRampToValueAtTime(0.015, now + 2.2);
-            buzzEnv.gain.exponentialRampToValueAtTime(0.001, now + 3.8);
+            osc1.connect(lpf);
+            lpf.connect(envGain);
+            osc2.connect(buzzGain);
+            buzzGain.connect(envGain);
+            envGain.connect(begenaGain);
             
-            // --- Connections ---
-            // Connect fundamental to main envelope
-            osc1.connect(mainEnv);
-            
-            // Connect buzz string to shaper, then filter, then buzz envelope, then main envelope
-            osc2.connect(shaper);
-            shaper.connect(lpfBuzz);
-            lpfBuzz.connect(buzzEnv);
-            buzzEnv.connect(mainEnv);
-            
-            // Connect main envelope to output
-            mainEnv.connect(begenaGain);
-            
-            // --- Start & Stop ---
             osc1.start(now);
             osc2.start(now);
-            osc1.stop(now + 6.0);
-            osc2.stop(now + 4.0);
+            osc1.stop(now + 3);
+            osc2.stop(now + 2);
         }
         
         pluckNote();
-        // Slow down the rhythm to a meditative 5 to 6.5 seconds per note
-        begenaInterval = setInterval(() => { pluckNote(); }, 4800 + Math.random() * 1200);
+        begenaInterval = setInterval(() => { pluckNote(); }, 2000 + Math.random() * 800);
     } catch (e) {
         console.error('Begena init failed:', e);
     }
 }
+
 
 function stopBegenaPlucks() {
     if (begenaInterval) { clearInterval(begenaInterval); begenaInterval = null; }
