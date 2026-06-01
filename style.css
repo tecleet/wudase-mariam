@@ -451,7 +451,7 @@ body.theme-dark .s-search-wrap {
 /* ═══════ Toggle Icon Grid ═══════ */
 .s-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 8px;
     margin-bottom: 14px;
 }
@@ -1393,6 +1393,221 @@ body.theme-dark .scroll-end-indicator canvas {
 .scroll-end-indicator.visible .scroll-end-text {
     opacity: 0.9;
     transform: translateY(0);
+}
+
+/* ═══════ Floating Zema Audio Player Bar ═══════ */
+.zema-player-bar {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(0);
+    width: 90%;
+    max-width: 680px;
+    background: var(--color-glass-bg);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid var(--color-glass-border);
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255,255,255,0.05) inset;
+    z-index: 130;
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    opacity: 1;
+}
+
+.zema-player-bar.hidden {
+    transform: translateX(-50%) translateY(120px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.zema-player-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    gap: 16px;
+}
+
+/* Left controls & track info */
+.zema-player-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0; /* allows text truncation */
+}
+
+.zema-control-btn {
+    background: none;
+    border: none;
+    color: var(--color-gold);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+}
+
+.zema-control-btn:hover {
+    background: rgba(197, 155, 39, 0.15);
+    color: var(--color-ink-black);
+}
+
+body.theme-dark .zema-control-btn:hover {
+    color: #fff;
+}
+
+.zema-control-btn.play-btn {
+    background: var(--color-gold);
+    color: var(--color-parchment);
+    width: 40px;
+    height: 40px;
+    box-shadow: 0 4px 10px rgba(197, 155, 39, 0.3);
+}
+
+.zema-control-btn.play-btn:hover {
+    transform: scale(1.05);
+    background: var(--color-burgundy);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(108, 26, 28, 0.4);
+}
+
+.zema-track-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.zema-track-title {
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-burgundy);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.theme-dark .zema-track-title {
+    color: var(--color-gold);
+}
+
+.zema-track-status {
+    font-family: var(--font-body-am);
+    font-size: 11px;
+    color: var(--color-ink-black);
+    opacity: 0.6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Center timeline progress */
+.zema-player-center {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 2;
+}
+
+.zema-progress-container {
+    flex: 1;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: height 0.2s ease;
+}
+
+body.theme-dark .zema-progress-container {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.zema-progress-container:hover {
+    height: 8px;
+}
+
+.zema-progress-bar {
+    width: 0%;
+    height: 100%;
+    background: var(--color-gold);
+    border-radius: 3px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: width 0.1s linear;
+}
+
+/* Right settings & close */
+.zema-player-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.zema-close-btn {
+    background: none;
+    border: none;
+    color: var(--color-ink-black);
+    opacity: 0.4;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transition: all 0.25s ease;
+}
+
+.zema-close-btn:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.05);
+    transform: rotate(90deg);
+}
+
+body.theme-dark .zema-close-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Stanza highlighting for audio play */
+.stanza-paragraph {
+    border-left: 3px solid transparent;
+    transition: all 0.4s ease;
+}
+
+.stanza-paragraph.active-audio-playing {
+    border-left: 3px solid var(--color-gold);
+    background: rgba(197, 155, 39, 0.06);
+    padding-left: 10px;
+    border-radius: 0 8px 8px 0;
+}
+
+body.theme-dark .stanza-paragraph.active-audio-playing {
+    background: rgba(197, 155, 39, 0.1);
+}
+
+/* responsive media override for bottom bar */
+@media (max-width: 600px) {
+    .zema-player-bar {
+        width: 95%;
+        bottom: 16px;
+    }
+    
+    .zema-player-content {
+        padding: 8px 12px;
+        gap: 8px;
+    }
+    
+    .zema-player-center {
+        display: none; /* hide center progress bar on very small phones to prevent layout breaking */
+    }
 }
 
 

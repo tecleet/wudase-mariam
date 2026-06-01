@@ -31,7 +31,9 @@ const state = {
     wakeLock: true,            // Screen keep-awake preference
     doubleTapPause: false,     // Double tap text to pause scroll toggle
     numberConvert: false,      // Convert Ge'ez numerals to Arabic digits
-    screenDimmer: 0            // Night overlay dim level (0-80)
+    screenDimmer: 0,           // Night overlay dim level (0-80)
+    begenaEnabled: false,      // Begena loop active toggle
+    zemaEnabled: false         // Daily chant player active toggle
 };
 
 // Sidebar display names (Bilingual labels)
@@ -102,7 +104,9 @@ const els = {
     fontSizeSlider: document.getElementById('font-size-slider'),
     fontSizeVal: document.getElementById('font-size-val'),
     
-    audioToggle: document.getElementById('audio-toggle'),
+    begenaToggle: document.getElementById('begena-toggle'),
+    zemaToggle: document.getElementById('zema-toggle'),
+    zemaPlayerBar: document.getElementById('zema-player-bar'),
     audioVolumeSlider: document.getElementById('audio-volume-slider'),
     audioVolumeVal: document.getElementById('audio-volume-val'),
     
@@ -159,6 +163,9 @@ let wakeLock = null;
 // Initialization trigger is placed at the bottom of this script to avoid Temporal Dead Zone (TDZ) ReferenceErrors.
 
 function initializeApp() {
+    if (typeof zemaPlayer !== 'undefined' && zemaPlayer.init) {
+        zemaPlayer.init();
+    }
     setupEventListeners();
     initGlobalTooltips();
     
@@ -201,7 +208,9 @@ function saveState() {
         wakeLock: state.wakeLock,
         doubleTapPause: state.doubleTapPause,
         numberConvert: state.numberConvert,
-        screenDimmer: state.screenDimmer
+        screenDimmer: state.screenDimmer,
+        begenaEnabled: state.begenaEnabled,
+        zemaEnabled: state.zemaEnabled
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
@@ -233,6 +242,8 @@ function loadState() {
             state.doubleTapPause       = d.doubleTapPause !== undefined ? d.doubleTapPause : false;
             state.numberConvert        = d.numberConvert !== undefined ? d.numberConvert : false;
             state.screenDimmer         = d.screenDimmer !== undefined ? d.screenDimmer : 0;
+            state.begenaEnabled        = d.begenaEnabled !== undefined ? d.begenaEnabled : false;
+            state.zemaEnabled          = d.zemaEnabled !== undefined ? d.zemaEnabled : false;
         }
     } catch (e) {
         console.error('Failed to load state from localStorage:', e);
@@ -247,6 +258,318 @@ function loadState() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+const ZEMA_CONFIG = {
+    basePath: 'https://ethiopianorthodox.org/churchmusic/zema%20timehert%20bet/mahlet%20yared/7.%20meeraf/',
+    prayers: {
+        monday: {
+            folder: '44%20wudase%20mariam%20ze%20senuy/',
+            tracksCount: 11,
+            title: 'ውዳሴ ማርያም ዘሰኑይ (ሰኞ)'
+        },
+        tuesday: {
+            folder: '48%20zeselus%20wudase%20mariam/',
+            tracksCount: 16,
+            title: 'ውዳሴ ማርያም ዘሰሉስ (ማክሰኞ)'
+        },
+        wednesday: {
+            folder: '51%20%20zerebuwudase%20mariam/',
+            tracksCount: 9,
+            title: 'ውዳሴ ማርያም ዘረቡዕ (ረቡዕ)'
+        },
+        thursday: {
+            folder: '55%20wudase%20mariam%20zehamus/',
+            tracksCount: 8,
+            title: 'ውዳሴ ማርያም ዘሐሙስ (ሐሙስ)'
+        },
+        friday: {
+            folder: '59%20wudase%20mariam%20zearb/',
+            tracksCount: 7,
+            title: 'ውዳሴ ማርያም ዘአርብ (አርብ)'
+        },
+        saturday: {
+            folder: '63%20wudase%20mariam%20zeqedamit/',
+            tracksCount: 12,
+            title: 'ውዳሴ ማርያም ዘቀዳሚት (ቅዳሜ)'
+        },
+        sunday: {
+            folder: '28%20wudase%20mariam%20zesenbet/',
+            tracksCount: 13,
+            title: 'ውዳሴ ማርያም ዘሰንበት (እሁድ)'
+        },
+        anqetse_birhan: {
+            folder: '30%20anketse%20birhan/',
+            tracksCount: 14,
+            title: 'አንቀጸ ብርሃን (Anqetse Birhan)'
+        }
+    }
+};
+
+const zemaPlayer = {
+    audio: null,
+    currentDay: null,
+    currentTrackIdx: 1,
+    isPlaying: false,
+    isMuted: false,
+    
+    init() {
+        this.audio = new Audio();
+        
+        this.audio.addEventListener('ended', () => this.onTrackEnded());
+        this.audio.addEventListener('timeupdate', () => this.onTimeUpdate());
+        this.audio.addEventListener('play', () => this.onPlayStateChange(true));
+        this.audio.addEventListener('pause', () => this.onPlayStateChange(false));
+        this.audio.addEventListener('error', (e) => this.onAudioError(e));
+        
+        const prog = document.getElementById('zema-progress-container');
+        if (prog) {
+            prog.addEventListener('click', (e) => this.seek(e));
+        }
+        
+        document.getElementById('zema-play-btn')?.addEventListener('click', () => this.togglePlay());
+        document.getElementById('zema-prev-btn')?.addEventListener('click', () => this.playPrev());
+        document.getElementById('zema-next-btn')?.addEventListener('click', () => this.playNext());
+        document.getElementById('zema-mute-btn')?.addEventListener('click', () => this.toggleMute());
+        document.getElementById('zema-close-btn')?.addEventListener('click', () => {
+            this.pause();
+            state.zemaEnabled = false;
+            els.zemaToggle.checked = false;
+            saveState();
+            this.updatePlayerVisibility();
+        });
+    },
+    
+    updatePlayerVisibility() {
+        if (state.zemaEnabled) {
+            els.zemaPlayerBar.classList.remove('hidden');
+            this.syncWithCurrentPrayer();
+        } else {
+            els.zemaPlayerBar.classList.add('hidden');
+            this.pause();
+            document.querySelectorAll('.stanza-paragraph').forEach(p => p.classList.remove('active-audio-playing'));
+        }
+    },
+    
+    syncWithCurrentPrayer() {
+        if (!state.zemaEnabled) return;
+        const activeSection = (state.layoutMode === 'split' && state.focusedSide === 'right') ? state.rightSection : state.leftSection;
+        
+        if (!activeSection || !ZEMA_CONFIG.prayers[activeSection]) {
+            this.currentDay = null;
+            this.updatePlayerUI(false, "ዜማ አልተዘጋጀም / No chanting audio available");
+            return;
+        }
+        
+        if (this.currentDay !== activeSection) {
+            this.currentDay = activeSection;
+            this.currentTrackIdx = 1;
+            this.isPlaying = false;
+            this.audio.src = '';
+            this.updatePlayerUI(true, "ዝግጁ / Ready");
+            this.highlightActiveStanza();
+        }
+    },
+    
+    updatePlayerUI(hasAudio, message) {
+        const playBtn = document.getElementById('zema-play-btn');
+        const prevBtn = document.getElementById('zema-prev-btn');
+        const nextBtn = document.getElementById('zema-next-btn');
+        const progress = document.getElementById('zema-progress-container');
+        const titleEl = document.getElementById('zema-track-title');
+        const statusEl = document.getElementById('zema-track-status');
+        
+        if (!playBtn || !prevBtn || !nextBtn || !progress || !titleEl || !statusEl) return;
+        
+        if (hasAudio) {
+            const config = ZEMA_CONFIG.prayers[this.currentDay];
+            titleEl.textContent = config.title;
+            
+            let trackName = `ክፍል ${this.currentTrackIdx} / Section ${this.currentTrackIdx}`;
+            if (this.currentTrackIdx === 1) {
+                trackName = "መቅድም (መግቢያ) / Introduction";
+            } else if (this.currentTrackIdx === config.tracksCount) {
+                if (this.currentDay === 'monday' || this.currentDay === 'tuesday') {
+                    trackName = "ማጠቃለያ / Concluding Prayer";
+                }
+            }
+            statusEl.textContent = message || trackName;
+            
+            playBtn.removeAttribute('disabled');
+            prevBtn.removeAttribute('disabled');
+            nextBtn.removeAttribute('disabled');
+            progress.style.pointerEvents = 'auto';
+            progress.style.opacity = '1';
+        } else {
+            titleEl.textContent = "ውዳሴ ማርያም ዜማ";
+            statusEl.textContent = message;
+            
+            playBtn.setAttribute('disabled', 'true');
+            prevBtn.setAttribute('disabled', 'true');
+            nextBtn.setAttribute('disabled', 'true');
+            progress.style.pointerEvents = 'none';
+            progress.style.opacity = '0.3';
+            
+            const bar = document.getElementById('zema-progress-bar');
+            if (bar) bar.style.width = '0%';
+        }
+        this.updatePlayBtnIcon();
+    },
+    
+    updatePlayBtnIcon() {
+        const playIcon = document.querySelector('.zema-btn-icon-play');
+        const pauseIcon = document.querySelector('.zema-btn-icon-pause');
+        if (!playIcon || !pauseIcon) return;
+        
+        if (this.isPlaying) {
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'block';
+        } else {
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+        }
+    },
+    
+    playTrack(idx) {
+        if (!this.currentDay) return;
+        const config = ZEMA_CONFIG.prayers[this.currentDay];
+        if (idx < 1 || idx > config.tracksCount) return;
+        
+        this.currentTrackIdx = idx;
+        const url = `${ZEMA_CONFIG.basePath}${config.folder}${idx}.mp3`;
+        
+        this.audio.src = url;
+        this.audio.volume = state.audioVolume / 100;
+        
+        this.audio.play()
+            .then(() => {
+                this.isPlaying = true;
+                this.updatePlayerUI(true);
+                this.highlightActiveStanza();
+            })
+            .catch(err => {
+                console.error("Zema playback failed:", err);
+                this.isPlaying = false;
+                this.updatePlayerUI(true, "መጫወት አልተቻለም / Load failed (check network)");
+            });
+    },
+    
+    togglePlay() {
+        if (!this.currentDay) return;
+        if (this.isPlaying) {
+            this.pause();
+        } else {
+            if (!this.audio.src || this.audio.src === window.location.href) {
+                this.playTrack(this.currentTrackIdx);
+            } else {
+                this.audio.play()
+                    .then(() => {
+                        this.isPlaying = true;
+                        this.updatePlayBtnIcon();
+                        this.highlightActiveStanza();
+                    })
+                    .catch(err => {
+                        console.error("Zema resume failed:", err);
+                        this.playTrack(this.currentTrackIdx);
+                    });
+            }
+        }
+    },
+    
+    pause() {
+        this.audio.pause();
+        this.isPlaying = false;
+        this.updatePlayBtnIcon();
+    },
+    
+    playPrev() {
+        if (!this.currentDay) return;
+        if (this.currentTrackIdx > 1) {
+            this.playTrack(this.currentTrackIdx - 1);
+        } else {
+            const config = ZEMA_CONFIG.prayers[this.currentDay];
+            this.playTrack(config.tracksCount);
+        }
+    },
+    
+    playNext() {
+        if (!this.currentDay) return;
+        const config = ZEMA_CONFIG.prayers[this.currentDay];
+        if (this.currentTrackIdx < config.tracksCount) {
+            this.playTrack(this.currentTrackIdx + 1);
+        } else {
+            this.playTrack(1);
+        }
+    },
+    
+    toggleMute() {
+        this.isMuted = !this.isMuted;
+        this.audio.muted = this.isMuted;
+        
+        const volIcon = document.querySelector('.zema-volume-icon');
+        const muteIcon = document.querySelector('.zema-mute-icon');
+        if (volIcon && muteIcon) {
+            if (this.isMuted) {
+                volIcon.style.display = 'none';
+                muteIcon.style.display = 'block';
+            } else {
+                volIcon.style.display = 'block';
+                muteIcon.style.display = 'none';
+            }
+        }
+    },
+    
+    seek(e) {
+        if (!this.audio.duration) return;
+        const prog = document.getElementById('zema-progress-container');
+        if (!prog) return;
+        const rect = prog.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const percentage = clickX / rect.width;
+        this.audio.currentTime = percentage * this.audio.duration;
+    },
+    
+    onTrackEnded() {
+        this.playNext();
+    },
+    
+    onTimeUpdate() {
+        if (!this.audio.duration) return;
+        const pct = (this.audio.currentTime / this.audio.duration) * 100;
+        const progressEl = document.getElementById('zema-progress-bar');
+        if (progressEl) {
+            progressEl.style.width = pct + '%';
+        }
+    },
+    
+    onPlayStateChange(playing) {
+        this.isPlaying = playing;
+        this.updatePlayBtnIcon();
+    },
+    
+    onAudioError(e) {
+        console.error("Zema audio element error:", e);
+        if (this.audio.src) {
+            this.isPlaying = false;
+            this.updatePlayerUI(true, "ስህተት ገጥሟል / Playback error");
+        }
+    },
+    
+    highlightActiveStanza() {
+        document.querySelectorAll('.stanza-paragraph').forEach(p => p.classList.remove('active-audio-playing'));
+        if (!this.currentDay) return;
+        
+        const activeStanzaIdx = this.currentTrackIdx - 1;
+        if (activeStanzaIdx < 1) return;
+        
+        const activeStanzas = document.querySelectorAll(`.stanza-paragraph[data-stanza-idx="${activeStanzaIdx}"]`);
+        activeStanzas.forEach(p => {
+            p.classList.add('active-audio-playing');
+            if (!state.autoScroll) {
+                p.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        });
+    }
+};
+
 let begenaAudio = null;
 
 function getBegenaAudio() {
@@ -261,6 +584,9 @@ function updateAudioVolume(volume) {
     const audio = getBegenaAudio();
     if (audio) {
         audio.volume = volume / 100;
+    }
+    if (typeof zemaPlayer !== 'undefined' && zemaPlayer.audio) {
+        zemaPlayer.audio.volume = volume / 100;
     }
 }
 
@@ -371,9 +697,11 @@ function processTextContent(text, lang) {
 
     const stanzas = text.split('\n\n');
     let htmlContent = '';
+    let stanzaCounter = 0;
 
     stanzas.forEach(stanza => {
         if (!stanza.trim()) return;
+        stanzaCounter++;
         
         let processedStanza = stanza.replace(/\n/g, '<br>');
         
@@ -409,7 +737,7 @@ function processTextContent(text, lang) {
             } catch (err) {}
         }
 
-        htmlContent += `<div class="stanza-paragraph">${processedStanza}</div>`;
+        htmlContent += `<div class="stanza-paragraph" data-stanza-idx="${stanzaCounter}">${processedStanza}</div>`;
     });
 
     return htmlContent;
@@ -556,6 +884,10 @@ function setFocusedSide(side) {
         els.readerLeft.classList.remove('focused');
         updateNavigationHighlights(state.rightSection);
     }
+    
+    if (typeof zemaPlayer !== 'undefined' && zemaPlayer.syncWithCurrentPrayer) {
+        zemaPlayer.syncWithCurrentPrayer();
+    }
 }
 
 function updateNavigationHighlights(sectionKey) {
@@ -606,6 +938,10 @@ function selectSection(sectionKey) {
         els.sidebar.classList.add('collapsed');
     }
     showControlsTemp();
+    
+    if (typeof zemaPlayer !== 'undefined' && zemaPlayer.syncWithCurrentPrayer) {
+        zemaPlayer.syncWithCurrentPrayer();
+    }
 }
 
 function cycleGlobalLanguage() {
@@ -620,6 +956,10 @@ function cycleGlobalLanguage() {
     }
     saveState();
     renderActivePrayer();
+    
+    if (typeof zemaPlayer !== 'undefined' && zemaPlayer.syncWithCurrentPrayer) {
+        zemaPlayer.syncWithCurrentPrayer();
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -732,11 +1072,24 @@ function setupEventListeners() {
         });
     });
 
-    els.audioToggle.addEventListener('change', async (e) => {
+    els.begenaToggle.addEventListener('change', async (e) => {
+        state.begenaEnabled = e.target.checked;
+        saveState();
         if (e.target.checked) {
             await startBegenaPlucks();
         } else {
             stopBegenaPlucks();
+        }
+    });
+
+    els.zemaToggle.addEventListener('change', (e) => {
+        state.zemaEnabled = e.target.checked;
+        saveState();
+        if (zemaPlayer) {
+            zemaPlayer.updatePlayerVisibility();
+            if (state.zemaEnabled && zemaPlayer.currentDay) {
+                zemaPlayer.playTrack(zemaPlayer.currentTrackIdx);
+            }
         }
     });
     
@@ -782,8 +1135,11 @@ function setupEventListeners() {
     });
 
     document.addEventListener('click', (e) => {
-        if (begenaAudio && begenaAudio.paused && els.audioToggle.checked) {
-            begenaAudio.play().catch(err => console.log('Audio resume on click failed:', err));
+        if (begenaAudio && begenaAudio.paused && state.begenaEnabled) {
+            begenaAudio.play().catch(err => console.log('Begena resume on click failed:', err));
+        }
+        if (zemaPlayer && zemaPlayer.audio && zemaPlayer.audio.paused && zemaPlayer.isPlaying && state.zemaEnabled) {
+            zemaPlayer.audio.play().catch(err => console.log('Zema resume on click failed:', err));
         }
         if (els.settingsPanel && !els.settingsPanel.classList.contains('hidden') &&
             !els.settingsPanel.contains(e.target) &&
@@ -852,7 +1208,8 @@ function setupEventListeners() {
         els.settingsPanel,
         els.sidebar,
         els.settingsToggleBtn,
-        els.langCycleFloatingBtn
+        els.langCycleFloatingBtn,
+        els.zemaPlayerBar
     ];
     controlElements.forEach(el => {
         if (el) {
@@ -866,6 +1223,16 @@ function setupEventListeners() {
                     showControlsTemp();
                 }
             });
+        }
+    });
+
+    els.readersContainer.addEventListener('click', (e) => {
+        const p = e.target.closest('.stanza-paragraph');
+        if (p && state.zemaEnabled) {
+            const idx = parseInt(p.getAttribute('data-stanza-idx'));
+            if (!isNaN(idx)) {
+                zemaPlayer.playTrack(idx + 1);
+            }
         }
     });
 }
@@ -1127,6 +1494,15 @@ function applyStateToUI() {
     els.audioVolumeSlider.value = state.audioVolume;
     els.audioVolumeVal.textContent = state.audioVolume;
     updateAudioVolume(state.audioVolume);
+    
+    els.begenaToggle.checked = state.begenaEnabled;
+    els.zemaToggle.checked = state.zemaEnabled;
+    if (state.begenaEnabled) {
+        startBegenaPlucks();
+    }
+    if (typeof zemaPlayer !== 'undefined' && zemaPlayer.updatePlayerVisibility) {
+        zemaPlayer.updatePlayerVisibility();
+    }
     
     els.lineHeightSlider.value = state.lineHeight;
     els.lineHeightVal.textContent = (state.lineHeight / 10).toFixed(1);
