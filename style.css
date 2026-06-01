@@ -1346,4 +1346,54 @@ body.theme-dark .fixed-settings-btn {
     transition: opacity 0.15s ease;
 }
 
+/* Mathematical End of Scroll Animation */
+.scroll-end-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0 80px 0;
+    opacity: 0.1;
+    transform: scale(0.95);
+    transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 40px;
+    border-top: 1px double var(--color-glass-border);
+    width: 100%;
+}
+
+.scroll-end-indicator.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.scroll-end-indicator canvas {
+    width: 150px;
+    height: 150px;
+    filter: drop-shadow(0 4px 12px var(--color-shadow));
+    transition: filter 0.3s ease;
+}
+
+body.theme-dark .scroll-end-indicator canvas {
+    filter: drop-shadow(0 4px 20px rgba(0,0,0,0.8));
+}
+
+.scroll-end-text {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-gold);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-top: 20px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1) 0.6s, transform 1s cubic-bezier(0.4, 0, 0.2, 1) 0.6s;
+}
+
+.scroll-end-indicator.visible .scroll-end-text {
+    opacity: 0.9;
+    transform: translateY(0);
+}
+
+
 

@@ -172,6 +172,7 @@ function initializeApp() {
     renderToplineNav();
     applyStateToUI();
     init3DGlobe();
+    initScrollEndAnimations();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -526,6 +527,14 @@ function setTheme(theme) {
             btn.classList.add('active');
         } else {
             btn.classList.remove('active');
+        }
+    });
+    
+    // Retrigger active spirograph animations to update theme colors
+    ['left', 'right'].forEach(side => {
+        const ind = document.getElementById(`scroll-end-${side}`);
+        if (ind && ind.classList.contains('visible')) {
+            startSpirograph(side);
         }
     });
     
@@ -1295,6 +1304,172 @@ function init3DGlobe() {
     }
 
     requestAnimationFrame(animate);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 17. Scroll-End Mathematical Animations (Spirograph)
+// ═══════════════════════════════════════════════════════════════
+const scrollEndAnimations = {
+    left: {
+        canvas: null,
+        ctx: null,
+        theta: 0,
+        animationFrameId: null,
+        maxTheta: 10 * Math.PI, // 5 rotations for 8-cusp spirograph
+        R: 96,
+        r: 60,
+        d: 55,
+        isActive: false,
+        phase: 'outer'
+    },
+    right: {
+        canvas: null,
+        ctx: null,
+        theta: 0,
+        animationFrameId: null,
+        maxTheta: 10 * Math.PI,
+        R: 96,
+        r: 60,
+        d: 55,
+        isActive: false,
+        phase: 'outer'
+    }
+};
+
+function startSpirograph(side) {
+    const anim = scrollEndAnimations[side];
+    if (!anim.canvas) {
+        anim.canvas = document.getElementById(`scroll-end-canvas-${side}`);
+        if (!anim.canvas) return;
+        anim.ctx = anim.canvas.getContext('2d');
+    }
+    
+    // Reset state
+    anim.theta = 0;
+    anim.isActive = true;
+    anim.phase = 'outer';
+    
+    // Clear canvas
+    anim.ctx.clearRect(0, 0, anim.canvas.width, anim.canvas.height);
+    
+    // Setup stroke colors from styles
+    const bodyStyles = getComputedStyle(document.body);
+    anim.goldColor = bodyStyles.getPropertyValue('--color-gold').trim() || '#c59b27';
+    anim.burgundyColor = bodyStyles.getPropertyValue('--color-burgundy').trim() || '#6c1a1c';
+    
+    if (anim.animationFrameId) {
+        cancelAnimationFrame(anim.animationFrameId);
+    }
+    
+    // Render loop
+    function step() {
+        if (!anim.isActive) return;
+        
+        const ctx = anim.ctx;
+        const R = anim.R;
+        const r = anim.r;
+        const d = anim.d;
+        
+        ctx.lineWidth = 2.2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        
+        // Speed up drawing by drawing multiple small steps per animation frame
+        const stepsPerFrame = 6;
+        const dt = 0.025; // smaller steps for ultra smooth lines
+        
+        for (let s = 0; s < stepsPerFrame; s++) {
+            if (anim.phase === 'outer') {
+                if (anim.theta > anim.maxTheta) {
+                    anim.phase = 'inner';
+                    anim.theta = 0;
+                }
+            } else if (anim.phase === 'inner') {
+                if (anim.theta > 2 * Math.PI) {
+                    // Draw a final central dot ornament
+                    ctx.beginPath();
+                    ctx.arc(150, 150, 4, 0, 2 * Math.PI);
+                    ctx.fillStyle = anim.burgundyColor;
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = anim.burgundyColor;
+                    ctx.fill();
+                    anim.isActive = false;
+                    return;
+                }
+            }
+            
+            const prevTheta = anim.theta;
+            anim.theta += dt;
+            
+            let x1, y1, x2, y2, color;
+            if (anim.phase === 'outer') {
+                x1 = 150 + (R - r) * Math.cos(prevTheta) + d * Math.cos(((R - r) / r) * prevTheta);
+                y1 = 150 + (R - r) * Math.sin(prevTheta) - d * Math.sin(((R - r) / r) * prevTheta);
+                
+                x2 = 150 + (R - r) * Math.cos(anim.theta) + d * Math.cos(((R - r) / r) * anim.theta);
+                y2 = 150 + (R - r) * Math.sin(anim.theta) - d * Math.sin(((R - r) / r) * anim.theta);
+                color = anim.goldColor;
+            } else {
+                const R_i = 40;
+                const r_i = 10;
+                const d_i = 20;
+                x1 = 150 + (R_i - r_i) * Math.cos(prevTheta) + d_i * Math.cos(((R_i - r_i) / r_i) * prevTheta);
+                y1 = 150 + (R_i - r_i) * Math.sin(prevTheta) - d_i * Math.sin(((R_i - r_i) / r_i) * prevTheta);
+                
+                x2 = 150 + (R_i - r_i) * Math.cos(anim.theta) + d_i * Math.cos(((R_i - r_i) / r_i) * anim.theta);
+                y2 = 150 + (R_i - r_i) * Math.sin(anim.theta) - d_i * Math.sin(((R_i - r_i) / r_i) * anim.theta);
+                color = anim.burgundyColor;
+            }
+            
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = color;
+            ctx.shadowBlur = 4;
+            ctx.shadowColor = color;
+            ctx.stroke();
+        }
+        
+        anim.animationFrameId = requestAnimationFrame(step);
+    }
+    
+    anim.animationFrameId = requestAnimationFrame(step);
+}
+
+function stopSpirograph(side) {
+    const anim = scrollEndAnimations[side];
+    anim.isActive = false;
+    if (anim.animationFrameId) {
+        cancelAnimationFrame(anim.animationFrameId);
+        anim.animationFrameId = null;
+    }
+}
+
+function initScrollEndAnimations() {
+    const observerOptions = {
+        root: null, // relative to document viewport
+        rootMargin: '0px',
+        threshold: 0.1 // trigger when 10% visible
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const side = entry.target.id === 'scroll-end-left' ? 'left' : 'right';
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                startSpirograph(side);
+            } else {
+                entry.target.classList.remove('visible');
+                stopSpirograph(side);
+            }
+        });
+    }, observerOptions);
+    
+    const leftIndicator = document.getElementById('scroll-end-left');
+    const rightIndicator = document.getElementById('scroll-end-right');
+    
+    if (leftIndicator) observer.observe(leftIndicator);
+    if (rightIndicator) observer.observe(rightIndicator);
 }
 
 // ═══════════════════════════════════════════════════════════════
