@@ -90,7 +90,6 @@ const amHighlightPatterns = [
 const els = {
     sidebar: document.getElementById('sidebar'),
     menuToggleBtn: document.getElementById('menu-toggle-btn'),
-    closeSidebarBtn: document.getElementById('close-sidebar-btn'),
     prayerList: document.getElementById('prayer-list'),
     
     layoutSingleBtn: document.getElementById('layout-single-btn'),
@@ -690,7 +689,6 @@ function renderToplineNav() {
 
 function setupEventListeners() {
     els.menuToggleBtn.addEventListener('click', () => els.sidebar.classList.toggle('collapsed'));
-    els.closeSidebarBtn.addEventListener('click', () => els.sidebar.classList.add('collapsed'));
     
     els.layoutSingleBtn.addEventListener('click', () => setLayoutMode('single'));
     els.layoutSplitBtn.addEventListener('click', () => setLayoutMode('split'));
@@ -783,6 +781,11 @@ function setupEventListeners() {
             !els.settingsToggleBtn.contains(e.target) &&
             (!els.langCycleFloatingBtn || !els.langCycleFloatingBtn.contains(e.target))) {
             els.settingsPanel.classList.add('hidden');
+        }
+        if (els.sidebar && !els.sidebar.classList.contains('collapsed') &&
+            !els.sidebar.contains(e.target) &&
+            !els.menuToggleBtn.contains(e.target)) {
+            els.sidebar.classList.add('collapsed');
         }
     });
     
