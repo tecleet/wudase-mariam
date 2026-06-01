@@ -10,7 +10,10 @@
 
 const state = {
     prayers: null,             // Raw prayer text database (loaded from window.prayersData)
-    currentSection: null,      // Active prayer section (e.g., 'monday', 'daily')
+    currentSection: null,      // Deprecated in favor of leftSection/rightSection
+    leftSection: null,         // Active prayer for left column
+    rightSection: null,        // Active prayer for right column
+    focusedSide: 'left',       // Focused panel: 'left' or 'right'
     layoutMode: 'single',      // 'single' or 'split'
     fontSize: 24,              // Font size in pixels
     highlightRed: true,        // Toggle for traditional red-coloring
@@ -154,11 +157,7 @@ let wakeLock = null;
 // 4. Initialization
 // ═══════════════════════════════════════════════════════════════
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeApp);
-} else {
-    initializeApp();
-}
+// Initialization trigger is placed at the bottom of this script to avoid Temporal Dead Zone (TDZ) ReferenceErrors.
 
 function initializeApp() {
     setupEventListeners();
@@ -184,7 +183,9 @@ const STORAGE_KEY = 'wudase_mariam_state';
 
 function saveState() {
     const data = {
-        currentSection: state.currentSection,
+        leftSection: state.leftSection,
+        rightSection: state.rightSection,
+        focusedSide: state.focusedSide,
         layoutMode: state.layoutMode,
         fontSize: state.fontSize,
         highlightRed: state.highlightRed,
@@ -216,7 +217,12 @@ function loadState() {
             state.activeTheme          = d.activeTheme || 'theme-vellum';
             state.leftLang             = d.leftLang || 'ge';
             state.rightLang            = d.rightLang || 'am';
-            state.currentSection       = d.currentSection;
+            
+            // Support migration from old currentSection key
+            state.leftSection          = d.leftSection !== undefined ? d.leftSection : (d.currentSection !== undefined ? d.currentSection : null);
+            state.rightSection         = d.rightSection !== undefined ? d.rightSection : (d.currentSection !== undefined ? d.currentSection : null);
+            state.focusedSide          = d.focusedSide || 'left';
+            
             state.zenMode              = d.zenMode !== undefined ? d.zenMode : true;
             state.scrollSpeed          = d.scrollSpeed !== undefined ? d.scrollSpeed : 3;
             state.audioVolume          = d.audioVolume !== undefined ? d.audioVolume : 80;
@@ -416,60 +422,64 @@ function processTextContent(text, lang) {
 function renderActivePrayer() {
     if (!state.prayers) return;
     
-    const section = state.currentSection;
-    
-    if (section === null) {
+    // Left Column
+    const leftSection = state.leftSection;
+    if (leftSection === null) {
         els.coverPageLeft.classList.remove('hidden');
         els.prayerDisplayLeft.classList.add('hidden');
-        
-        els.coverPageRight.classList.remove('hidden');
-        els.prayerDisplayRight.classList.add('hidden');
-        return;
+    } else {
+        const leftPrayerData = state.prayers[leftSection];
+        if (leftPrayerData) {
+            els.coverPageLeft.classList.add('hidden');
+            els.prayerDisplayLeft.classList.remove('hidden');
+            
+            let leftContent = leftPrayerData.content[state.leftLang] || '';
+            let leftLangForFont = state.leftLang;
+            
+            // Fallback to Ge'ez if content is placeholder/missing (e.g. Melka Eyesus/Mariam)
+            if (leftContent.length < 100 && leftPrayerData.content['ge'] && state.leftLang !== 'ge') {
+                const note = state.leftLang === 'am' ? 
+                    "\n\n*(ማሳሰቢያ፡ ይህ ጸሎት በአማርኛ ትርጉም ስለማይገኝ በግዕዝ ቀርቧል።)*" : 
+                    "\n\n*(Note: Since this prayer is not available in English translation, it is presented in Ge'ez.)*";
+                leftContent = leftPrayerData.content['ge'] + note;
+                leftLangForFont = 'ge';
+            }
+            
+            setReaderFontFamily(els.contentLeft, leftLangForFont);
+            els.titleLeft.innerHTML = leftPrayerData.title[state.leftLang] || '';
+            els.contentLeft.innerHTML = processTextContent(leftContent, leftLangForFont);
+        }
     }
-    
-    const prayerData = state.prayers[section];
-    if (!prayerData) return;
-    
-    // Left Column
-    els.coverPageLeft.classList.add('hidden');
-    els.prayerDisplayLeft.classList.remove('hidden');
-    
-    let leftContent = prayerData.content[state.leftLang] || '';
-    let leftLangForFont = state.leftLang;
-    
-    // Fallback to Ge'ez if content is placeholder/missing (e.g. Melka Eyesus/Mariam)
-    if (leftContent.length < 100 && prayerData.content['ge'] && state.leftLang !== 'ge') {
-        const note = state.leftLang === 'am' ? 
-            "\n\n*(ማሳሰቢያ፡ ይህ ጸሎት በአማርኛ ትርጉም ስለማይገኝ በግዕዝ ቀርቧል።)*" : 
-            "\n\n*(Note: Since this prayer is not available in English translation, it is presented in Ge'ez.)*";
-        leftContent = prayerData.content['ge'] + note;
-        leftLangForFont = 'ge';
-    }
-    
-    setReaderFontFamily(els.contentLeft, leftLangForFont);
-    els.titleLeft.innerHTML = prayerData.title[state.leftLang] || '';
-    els.contentLeft.innerHTML = processTextContent(leftContent, leftLangForFont);
     
     // Right Column
     if (state.layoutMode === 'split') {
-        els.coverPageRight.classList.add('hidden');
-        els.prayerDisplayRight.classList.remove('hidden');
-        
-        let rightContent = prayerData.content[state.rightLang] || '';
-        let rightLangForFont = state.rightLang;
-        
-        // Fallback to Ge'ez if content is placeholder/missing (e.g. Melka Eyesus/Mariam)
-        if (rightContent.length < 100 && prayerData.content['ge'] && state.rightLang !== 'ge') {
-            const note = state.rightLang === 'am' ? 
-                "\n\n*(ማሳሰቢያ፡ ይህ ጸሎት በአማርኛ ትርጉም ስለማይገኝ በግዕዝ ቀርቧል።)*" : 
-                "\n\n*(Note: Since this prayer is not available in English translation, it is presented in Ge'ez.)*";
-            rightContent = prayerData.content['ge'] + note;
-            rightLangForFont = 'ge';
+        const rightSection = state.rightSection;
+        if (rightSection === null) {
+            els.coverPageRight.classList.remove('hidden');
+            els.prayerDisplayRight.classList.add('hidden');
+        } else {
+            const rightPrayerData = state.prayers[rightSection];
+            if (rightPrayerData) {
+                els.coverPageRight.classList.add('hidden');
+                els.prayerDisplayRight.classList.remove('hidden');
+                
+                let rightContent = rightPrayerData.content[state.rightLang] || '';
+                let rightLangForFont = state.rightLang;
+                
+                // Fallback to Ge'ez if content is placeholder/missing (e.g. Melka Eyesus/Mariam)
+                if (rightContent.length < 100 && rightPrayerData.content['ge'] && state.rightLang !== 'ge') {
+                    const note = state.rightLang === 'am' ? 
+                        "\n\n*(ማሳሰቢያ፡ ይህ ጸሎት በአማርኛ ትርጉም ስለማይገኝ በግዕዝ ቀርቧል።)*" : 
+                        "\n\n*(Note: Since this prayer is not available in English translation, it is presented in Ge'ez.)*";
+                    rightContent = rightPrayerData.content['ge'] + note;
+                    rightLangForFont = 'ge';
+                }
+                
+                setReaderFontFamily(els.contentRight, rightLangForFont);
+                els.titleRight.innerHTML = rightPrayerData.title[state.rightLang] || '';
+                els.contentRight.innerHTML = processTextContent(rightContent, rightLangForFont);
+            }
         }
-        
-        setReaderFontFamily(els.contentRight, rightLangForFont);
-        els.titleRight.innerHTML = prayerData.title[state.rightLang] || '';
-        els.contentRight.innerHTML = processTextContent(rightContent, rightLangForFont);
     } else {
         els.coverPageRight.classList.remove('hidden');
         els.prayerDisplayRight.classList.add('hidden');
@@ -489,12 +499,19 @@ function setLayoutMode(mode) {
         els.readersContainer.classList.remove('mode-split');
         els.readersContainer.classList.add('mode-single');
         els.readerRight.classList.add('hidden');
+        
+        els.readerLeft.classList.remove('focused');
+        els.readerRight.classList.remove('focused');
+        
+        updateNavigationHighlights(state.leftSection);
     } else {
         els.layoutSingleBtn.classList.remove('active');
         els.layoutSplitBtn.classList.add('active');
         els.readersContainer.classList.remove('mode-single');
         els.readersContainer.classList.add('mode-split');
         els.readerRight.classList.remove('hidden');
+        
+        setFocusedSide(state.focusedSide);
     }
     
     renderActivePrayer();
@@ -516,10 +533,24 @@ function setTheme(theme) {
     saveState();
 }
 
-function selectSection(sectionKey) {
-    state.currentSection = sectionKey;
+function setFocusedSide(side) {
+    if (state.layoutMode !== 'split') return;
+    
+    state.focusedSide = side;
     saveState();
     
+    if (side === 'left') {
+        els.readerLeft.classList.add('focused');
+        els.readerRight.classList.remove('focused');
+        updateNavigationHighlights(state.leftSection);
+    } else {
+        els.readerRight.classList.add('focused');
+        els.readerLeft.classList.remove('focused');
+        updateNavigationHighlights(state.rightSection);
+    }
+}
+
+function updateNavigationHighlights(sectionKey) {
     document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
     if (sectionKey) {
         const activeNav = document.getElementById(`nav-${sectionKey}`);
@@ -543,32 +574,41 @@ function selectSection(sectionKey) {
             coverPill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
     }
+}
+
+function selectSection(sectionKey) {
+    if (state.layoutMode === 'split') {
+        if (state.focusedSide === 'left') {
+            state.leftSection = sectionKey;
+        } else {
+            state.rightSection = sectionKey;
+        }
+    } else {
+        state.leftSection = sectionKey;
+    }
+    saveState();
+    
+    updateNavigationHighlights(sectionKey);
+    renderActivePrayer();
+    
+    const focusedReader = (state.layoutMode === 'split' && state.focusedSide === 'right') ? els.readerRight : els.readerLeft;
+    focusedReader.querySelector('.book-page').scrollTop = 0;
     
     if (window.innerWidth <= 768) {
         els.sidebar.classList.add('collapsed');
     }
-    
-    renderActivePrayer();
-    
-    els.readerLeft.querySelector('.book-page').scrollTop = 0;
-    els.readerRight.querySelector('.book-page').scrollTop = 0;
     showControlsTemp();
 }
 
 function cycleGlobalLanguage() {
-    if (state.layoutMode === 'single') {
-        state.leftLang = state.leftLang === 'ge' ? 'am' : state.leftLang === 'am' ? 'en' : 'ge';
-    } else {
-        if (state.leftLang === 'ge' && state.rightLang === 'am') {
-            state.leftLang = 'am';
-            state.rightLang = 'en';
-        } else if (state.leftLang === 'am' && state.rightLang === 'en') {
-            state.leftLang = 'ge';
-            state.rightLang = 'en';
+    if (state.layoutMode === 'split') {
+        if (state.focusedSide === 'left') {
+            state.leftLang = state.leftLang === 'ge' ? 'am' : state.leftLang === 'am' ? 'en' : 'ge';
         } else {
-            state.leftLang = 'ge';
-            state.rightLang = 'am';
+            state.rightLang = state.rightLang === 'ge' ? 'am' : state.rightLang === 'am' ? 'en' : 'ge';
         }
+    } else {
+        state.leftLang = state.leftLang === 'ge' ? 'am' : state.leftLang === 'am' ? 'en' : 'ge';
     }
     saveState();
     renderActivePrayer();
@@ -771,6 +811,18 @@ function setupEventListeners() {
     els.readerLeft.querySelector('.book-page').addEventListener('click', showControlsTemp);
     els.readerRight.querySelector('.book-page').addEventListener('click', showControlsTemp);
     
+    // Column focus listeners for split-screen mode
+    els.readerLeft.addEventListener('click', () => {
+        if (state.layoutMode === 'split') {
+            setFocusedSide('left');
+        }
+    });
+    els.readerRight.addEventListener('click', () => {
+        if (state.layoutMode === 'split') {
+            setFocusedSide('right');
+        }
+    });
+    
     const handleDoubleTapToPause = () => {
         if (!state.doubleTapPause) return;
         state.autoScroll = !state.autoScroll;
@@ -934,6 +986,7 @@ document.addEventListener('visibilitychange', async () => {
 
 function syncRightScroll(e) {
     if (state.layoutMode !== 'split' || isSyncingRightScroll) return;
+    if (state.leftSection !== state.rightSection) return; // Only sync scrolls if both sides show the same prayer
     isSyncingLeftScroll = true;
     isProgrammaticScroll = true;
     const leftEl = e.target;
@@ -948,6 +1001,7 @@ function syncRightScroll(e) {
 
 function syncLeftScroll(e) {
     if (state.layoutMode !== 'split' || isSyncingLeftScroll) return;
+    if (state.leftSection !== state.rightSection) return; // Only sync scrolls if both sides show the same prayer
     isSyncingRightScroll = true;
     isProgrammaticScroll = true;
     const rightEl = e.target;
@@ -1075,7 +1129,12 @@ function applyStateToUI() {
         els.screenDimmerOverlay.style.opacity = state.screenDimmer / 100;
     }
     
-    selectSection(state.currentSection);
+    if (state.layoutMode === 'split') {
+        setFocusedSide(state.focusedSide);
+    } else {
+        updateNavigationHighlights(state.leftSection);
+    }
+    renderActivePrayer();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1233,4 +1292,13 @@ function init3DGlobe() {
     }
 
     requestAnimationFrame(animate);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 18. App Initialization Trigger
+// ═══════════════════════════════════════════════════════════════
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+    initializeApp();
 }
