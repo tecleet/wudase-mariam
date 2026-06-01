@@ -888,7 +888,12 @@ function handleReaderScrollEvents(e) {
     const el = e.target;
     const currentScroll = el.scrollTop;
     
-    if (state.zenMode) {
+    // Check if user has scrolled to the bottom (within 10px threshold)
+    const reachedBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 10;
+    
+    if (reachedBottom) {
+        setZenHidden(false);
+    } else if (state.zenMode) {
         const lastScroll = el.id === 'reader-left' ? lastScrollTopLeft : lastScrollTopRight;
         
         if (!isProgrammaticScroll) {
@@ -945,6 +950,7 @@ function toggleAutoScroll() {
                 els.autoScrollToggle.checked = false;
                 clearInterval(autoScrollTimer);
                 autoScrollTimer = null;
+                setZenHidden(false);
                 saveState();
                 return;
             }
