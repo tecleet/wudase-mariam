@@ -530,11 +530,11 @@ function setTheme(theme) {
         }
     });
     
-    // Retrigger active spirograph animations to update theme colors
+    // Retrigger active scroll-end animations to update theme colors
     ['left', 'right'].forEach(side => {
         const ind = document.getElementById(`scroll-end-${side}`);
         if (ind && ind.classList.contains('visible')) {
-            startSpirograph(side);
+            startScrollEndAnimation(side);
         }
     });
     
@@ -1313,36 +1313,26 @@ function init3DGlobe() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 17. Scroll-End Mathematical Animations (Spirograph)
+// 17. Scroll-End Mathematical Animations (Orthodox Cross)
 // ═══════════════════════════════════════════════════════════════
 const scrollEndAnimations = {
     left: {
         canvas: null,
         ctx: null,
-        theta: 0,
+        frame: 0,
         animationFrameId: null,
-        maxTheta: 10 * Math.PI, // 5 rotations for 8-cusp spirograph
-        R: 96,
-        r: 60,
-        d: 55,
-        isActive: false,
-        phase: 'outer'
+        isActive: false
     },
     right: {
         canvas: null,
         ctx: null,
-        theta: 0,
+        frame: 0,
         animationFrameId: null,
-        maxTheta: 10 * Math.PI,
-        R: 96,
-        r: 60,
-        d: 55,
-        isActive: false,
-        phase: 'outer'
+        isActive: false
     }
 };
 
-function startSpirograph(side) {
+function startScrollEndAnimation(side) {
     const anim = scrollEndAnimations[side];
     if (!anim.canvas) {
         anim.canvas = document.getElementById(`scroll-end-canvas-${side}`);
@@ -1351,9 +1341,8 @@ function startSpirograph(side) {
     }
     
     // Reset state
-    anim.theta = 0;
+    anim.frame = 0;
     anim.isActive = true;
-    anim.phase = 'outer';
     
     // Clear canvas
     anim.ctx.clearRect(0, 0, anim.canvas.width, anim.canvas.height);
@@ -1367,82 +1356,131 @@ function startSpirograph(side) {
         cancelAnimationFrame(anim.animationFrameId);
     }
     
-    // Render loop
-    function step() {
+    const ctx = anim.ctx;
+    
+    function drawTrefoil(ctx, x, y, r, color) {
+        ctx.beginPath();
+        // 3 overlapping circles at the tip to represent trefoil ends
+        ctx.arc(x, y - r/1.5, r, 0, 2 * Math.PI);
+        ctx.arc(x - r/1.5, y + r/3, r, 0, 2 * Math.PI);
+        ctx.arc(x + r/1.5, y + r/3, r, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = color;
+        ctx.fill();
+    }
+    
+    function draw() {
         if (!anim.isActive) return;
         
-        const ctx = anim.ctx;
-        const R = anim.R;
-        const r = anim.r;
-        const d = anim.d;
-        
-        ctx.lineWidth = 2.2;
+        ctx.clearRect(0, 0, anim.canvas.width, anim.canvas.height);
+        ctx.lineWidth = 3.5;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         
-        // Speed up drawing by drawing multiple small steps per animation frame
-        const stepsPerFrame = 6;
-        const dt = 0.025; // smaller steps for ultra smooth lines
+        const f = anim.frame;
         
-        for (let s = 0; s < stepsPerFrame; s++) {
-            if (anim.phase === 'outer') {
-                if (anim.theta > anim.maxTheta) {
-                    anim.phase = 'inner';
-                    anim.theta = 0;
-                }
-            } else if (anim.phase === 'inner') {
-                if (anim.theta > 2 * Math.PI) {
-                    // Draw a final central dot ornament
-                    ctx.beginPath();
-                    ctx.arc(150, 150, 4, 0, 2 * Math.PI);
-                    ctx.fillStyle = anim.burgundyColor;
-                    ctx.shadowBlur = 6;
-                    ctx.shadowColor = anim.burgundyColor;
-                    ctx.fill();
-                    anim.isActive = false;
-                    return;
-                }
-            }
-            
-            const prevTheta = anim.theta;
-            anim.theta += dt;
-            
-            let x1, y1, x2, y2, color;
-            if (anim.phase === 'outer') {
-                x1 = 150 + (R - r) * Math.cos(prevTheta) + d * Math.cos(((R - r) / r) * prevTheta);
-                y1 = 150 + (R - r) * Math.sin(prevTheta) - d * Math.sin(((R - r) / r) * prevTheta);
-                
-                x2 = 150 + (R - r) * Math.cos(anim.theta) + d * Math.cos(((R - r) / r) * anim.theta);
-                y2 = 150 + (R - r) * Math.sin(anim.theta) - d * Math.sin(((R - r) / r) * anim.theta);
-                color = anim.goldColor;
-            } else {
-                const R_i = 40;
-                const r_i = 10;
-                const d_i = 20;
-                x1 = 150 + (R_i - r_i) * Math.cos(prevTheta) + d_i * Math.cos(((R_i - r_i) / r_i) * prevTheta);
-                y1 = 150 + (R_i - r_i) * Math.sin(prevTheta) - d_i * Math.sin(((R_i - r_i) / r_i) * prevTheta);
-                
-                x2 = 150 + (R_i - r_i) * Math.cos(anim.theta) + d_i * Math.cos(((R_i - r_i) / r_i) * anim.theta);
-                y2 = 150 + (R_i - r_i) * Math.sin(anim.theta) - d_i * Math.sin(((R_i - r_i) / r_i) * anim.theta);
-                color = anim.burgundyColor;
-            }
-            
+        // Stage 1: Vertical shaft from (150, 50) to (150, 250)
+        if (f > 0) {
+            const t = Math.min(1, f / 40);
             ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.strokeStyle = color;
-            ctx.shadowBlur = 4;
-            ctx.shadowColor = color;
+            ctx.moveTo(150, 50);
+            ctx.lineTo(150, 50 + (250 - 50) * t);
+            ctx.strokeStyle = anim.goldColor;
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = anim.goldColor;
             ctx.stroke();
         }
         
-        anim.animationFrameId = requestAnimationFrame(step);
+        // Stage 2: Top crossbeam from (120, 90) to (180, 90)
+        if (f > 40) {
+            const t = Math.min(1, (f - 40) / 20);
+            ctx.beginPath();
+            ctx.moveTo(150 - 30 * t, 90);
+            ctx.lineTo(150 + 30 * t, 90);
+            ctx.strokeStyle = anim.goldColor;
+            ctx.stroke();
+        }
+        
+        // Stage 3: Middle crossbeam from (90, 135) to (210, 135)
+        if (f > 60) {
+            const t = Math.min(1, (f - 60) / 25);
+            ctx.beginPath();
+            ctx.moveTo(150 - 60 * t, 135);
+            ctx.lineTo(150 + 60 * t, 135);
+            ctx.strokeStyle = anim.goldColor;
+            ctx.stroke();
+        }
+        
+        // Stage 4: Slanted footrest from (125, 210) to (175, 194)
+        if (f > 85) {
+            const t = Math.min(1, (f - 85) / 20);
+            ctx.beginPath();
+            ctx.moveTo(150 - 25 * t, 202 + 8 * t);
+            ctx.lineTo(150 + 25 * t, 202 - 8 * t);
+            ctx.strokeStyle = anim.goldColor;
+            ctx.stroke();
+        }
+        
+        // Stage 5: Central halo circle around (150, 135) with radius 24
+        if (f > 105) {
+            const t = Math.min(1, (f - 105) / 35);
+            ctx.beginPath();
+            ctx.arc(150, 135, 24, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * t);
+            ctx.strokeStyle = anim.burgundyColor;
+            ctx.shadowColor = anim.burgundyColor;
+            ctx.stroke();
+        }
+        
+        // Stage 6: Central radiating rays from (150, 135)
+        if (f > 140) {
+            const t = Math.min(1, (f - 140) / 20);
+            const rayLen = 13 * t;
+            ctx.strokeStyle = anim.goldColor;
+            ctx.shadowColor = anim.goldColor;
+            ctx.lineWidth = 2.0;
+            
+            ctx.beginPath();
+            ctx.moveTo(150, 135); ctx.lineTo(150 + rayLen, 135 - rayLen);
+            ctx.moveTo(150, 135); ctx.lineTo(150 - rayLen, 135 - rayLen);
+            ctx.moveTo(150, 135); ctx.lineTo(150 - rayLen, 135 + rayLen);
+            ctx.moveTo(150, 135); ctx.lineTo(150 + rayLen, 135 + rayLen);
+            ctx.stroke();
+        }
+        
+        // Stage 7: Trefoil rosettes at the tips
+        if (f > 160) {
+            const t = Math.min(1, (f - 160) / 25);
+            const r_t = 4 * t;
+            
+            drawTrefoil(ctx, 150, 50, r_t, anim.goldColor);
+            drawTrefoil(ctx, 90, 135, r_t, anim.goldColor);
+            drawTrefoil(ctx, 210, 135, r_t, anim.goldColor);
+            drawTrefoil(ctx, 150, 250, r_t, anim.goldColor);
+        }
+        
+        // Stage 8: Central cross dot at (150, 135)
+        if (f > 185) {
+            const t = Math.min(1, (f - 185) / 5);
+            ctx.beginPath();
+            ctx.arc(150, 135, 3.5 * t, 0, 2 * Math.PI);
+            ctx.fillStyle = anim.burgundyColor;
+            ctx.shadowColor = anim.burgundyColor;
+            ctx.fill();
+        }
+        
+        if (f < 195) {
+            anim.frame += 1;
+            anim.animationFrameId = requestAnimationFrame(draw);
+        } else {
+            anim.isActive = false;
+        }
     }
     
-    anim.animationFrameId = requestAnimationFrame(step);
+    anim.animationFrameId = requestAnimationFrame(draw);
 }
 
-function stopSpirograph(side) {
+function stopScrollEndAnimation(side) {
     const anim = scrollEndAnimations[side];
     anim.isActive = false;
     if (anim.animationFrameId) {
@@ -1463,10 +1501,10 @@ function initScrollEndAnimations() {
             const side = entry.target.id === 'scroll-end-left' ? 'left' : 'right';
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
-                startSpirograph(side);
+                startScrollEndAnimation(side);
             } else {
                 entry.target.classList.remove('visible');
-                stopSpirograph(side);
+                stopScrollEndAnimation(side);
             }
         });
     }, observerOptions);
