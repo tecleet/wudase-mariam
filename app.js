@@ -259,47 +259,146 @@ function loadState() {
 
 // ═══════════════════════════════════════════════════════════════
 const ZEMA_CONFIG = {
-    basePath: 'https://ethiopianorthodox.org/churchmusic/zema%20timehert%20bet/mahlet%20yared/7.%20meeraf/',
+    basePath: 'https://eathebook.org/nibab_bet/',
     prayers: {
+        daily: {
+            title: 'የዘወትር ጸሎት (Daily Prayer)',
+            tracks: [
+                '1.Yezewetr Tselot/1.Besme ab.mp3',
+                '1.Yezewetr Tselot/2.Neakuteke.mp3',
+                '1.Yezewetr Tselot/3.Abune Zebesemayat.mp3',
+                '1.Yezewetr Tselot/4.Beselam kidus.mp3',
+                '1.Yezewetr Tselot/5.Tselote Haymanot.mp3',
+                '1.Yezewetr Tselot/6.Kidusna Esegd.mp3',
+                '1.Yezewetr Tselot/7.sibhat.mp3',
+                '1.Yezewetr Tselot/8.selam leki.mp3',
+                '1.Yezewetr Tselot/9.Tselote egzetine.mp3'
+            ]
+        },
         monday: {
-            folder: '44%20wudase%20mariam%20ze%20senuy/',
-            tracksCount: 11,
-            title: 'ውዳሴ ማርያም ዘሰኑይ (ሰኞ)'
+            title: 'ውዳሴ ማርያም ዘሰኑይ (ሰኞ)',
+            tracks: [
+                '2.Wudase maryam/1.zesenuy/1.Fekede.mp3',
+                '2.Wudase maryam/1.zesenuy/2.Lehewan.mp3',
+                '2.Wudase maryam/1.zesenuy/3.Eyesus.mp3',
+                '2.Wudase maryam/1.zesenuy/4.Rieye.mp3',
+                '2.Wudase maryam/1.zesenuy/5.Tefesah.mp3',
+                '2.Wudase maryam/1.zesenuy/6.zehalo.mp3',
+                '2.Wudase maryam/1.zesenuy/7.Tefeshi o betelhem.mp3',
+                '2.Wudase maryam/1.zesenuy/8.Titfesah.mp3',
+                '2.Wudase maryam/1.zesenuy/9.Birhan.mp3'
+            ]
         },
         tuesday: {
-            folder: '48%20zeselus%20wudase%20mariam/',
-            tracksCount: 16,
-            title: 'ውዳሴ ማርያም ዘሰሉስ (ማክሰኞ)'
+            title: 'ውዳሴ ማርያም ዘሰሉስ (ማክሰኞ)',
+            tracks: [
+                '2.Wudase maryam/2.Zeselus/1.Beselus.mp3',
+                '2.Wudase maryam/2.Zeselus/2.Abiy.mp3',
+                '2.Wudase maryam/2.Zeselus/3.Etse.mp3',
+                '2.Wudase maryam/2.Zeselus/4.Geraht.mp3',
+                '2.Wudase maryam/2.Zeselus/5.Tefeshi o weladite egzie.mp3',
+                '2.Wudase maryam/2.Zeselus/6.Tefeshi esme dilwe.mp3',
+                '2.Wudase maryam/2.Zeselus/7.O dingl.mp3',
+                '2.Wudase maryam/2.Zeselus/8.Kaleab.mp3',
+                '2.Wudase maryam/2.Zeselus/9.wietuke.mp3',
+                '2.Wudase maryam/2.Zeselus/10.Ebeya.mp3',
+                '2.Wudase maryam/2.Zeselus/11.Zewetu.mp3',
+                '2.Wudase maryam/2.Zeselus/12.Konki atske Nituha.mp3',
+                '2.Wudase maryam/2.Zeselus/13.anti emu.mp3',
+                '2.Wudase maryam/2.Zeselus/14.Ay lisan.mp3',
+                '2.Wudase maryam/2.Zeselus/15.Tefshi o maryam.mp3'
+            ]
         },
         wednesday: {
-            folder: '51%20%20zerebuwudase%20mariam/',
-            tracksCount: 9,
-            title: 'ውዳሴ ማርያም ዘረቡዕ (ረቡዕ)'
+            title: 'ውዳሴ ማርያም ዘረቡዕ (ረቡዕ)',
+            tracks: [
+                '2.Wudase maryam/3.Zerebue/1.Berebue.mp3',
+                '2.Wudase maryam/3.Zerebue/2.Tenebeyu.mp3',
+                '2.Wudase maryam/3.Zerebue/3.anti zebeaman.mp3',
+                '2.Wudase maryam/3.Zerebue/4.Rekebki tsega.mp3',
+                '2.Wudase maryam/3.Zerebue/5.Gibre Dingl.mp3',
+                '2.Wudase maryam/3.Zerebue/6.Yeabi kibra.mp3',
+                '2.Wudase maryam/3.Zerebue/7.Hizkel.mp3',
+                '2.Wudase maryam/3.Zerebue/8.hohitse.mp3'
+            ]
         },
         thursday: {
-            folder: '55%20wudase%20mariam%20zehamus/',
-            tracksCount: 8,
-            title: 'ውዳሴ ማርያም ዘሐሙስ (ሐሙስ)'
+            title: 'ውዳሴ ማርያም ዘሐሙስ (ሐሙስ)',
+            tracks: [
+                '2.Wudase maryam/4.Zehamus/1.Behamus.mp3',
+                '2.Wudase maryam/4.Zehamus/2.Timikhte.mp3',
+                '2.Wudase maryam/4.Zehamus/3.O z menkir weetsub.mp3',
+                '2.Wudase maryam/4.Zehamus/4.O z menkir nesa.mp3',
+                '2.Wudase maryam/4.Zehamus/5.Mehale.mp3',
+                '2.Wudase maryam/4.Zehamus/6.Dawit.mp3',
+                '2.Wudase maryam/4.Zehamus/7.Ahadu.mp3'
+            ]
         },
         friday: {
-            folder: '59%20wudase%20mariam%20zearb/',
-            tracksCount: 7,
-            title: 'ውዳሴ ማርያም ዘአርብ (አርብ)'
+            title: 'ውዳሴ ማርያም ዘአርብ (አርብ)',
+            tracks: [
+                '2.Wudase maryam/5.Zearb/1.Bearb.mp3',
+                '2.Wudase maryam/5.Zearb/2.Burkt anti teabyi.mp3',
+                '2.Wudase maryam/5.Zearb/3.Mikhon.mp3',
+                '2.Wudase maryam/5.Zearb/4.Mudaye efret.mp3',
+                '2.Wudase maryam/5.Zearb/5.Maryam Nitsht.mp3',
+                '2.Wudase maryam/5.Zearb/6.Ttserih.mp3'
+            ]
         },
         saturday: {
-            folder: '63%20wudase%20mariam%20zeqedamit/',
-            tracksCount: 12,
-            title: 'ውዳሴ ማርያም ዘቀዳሚት (ቅዳሜ)'
+            title: 'ውዳሴ ማርያም ዘቀዳሚት (ቅዳሜ)',
+            tracks: [
+                '2.Wudase maryam/6.Zekedamit/1.Bekedamit.mp3',
+                '2.Wudase maryam/6.Zekedamit/2.Nastebetse.mp3',
+                '2.Wudase maryam/6.Zekedamit/3.Keme kebkab.mp3',
+                '2.Wudase maryam/6.Zekedamit/4.Zemed.mp3',
+                '2.Wudase maryam/6.Zekedamit/5.Konki.mp3',
+                '2.Wudase maryam/6.Zekedamit/6.debtera.mp3',
+                '2.Wudase maryam/6.Zekedamit/7.Tesemeyki.mp3',
+                '2.Wudase maryam/6.Zekedamit/8.sewasiw.mp3',
+                '2.Wudase maryam/6.Zekedamit/9.Nahu Egzie.mp3',
+                '2.Wudase maryam/6.Zekedamit/10.Tefeshi O miliete tsega.mp3'
+            ]
         },
         sunday: {
-            folder: '28%20wudase%20mariam%20zesenbet/',
-            tracksCount: 13,
-            title: 'ውዳሴ ማርያም ዘሰንበት (እሁድ)'
+            title: 'ውዳሴ ማርያም ዘሰንበት (እሁድ)',
+            tracks: [
+                '2.Wudase maryam/7.Zesenbete kirstian/1.Besenbete kiristian.mp3',
+                '2.Wudase maryam/7.Zesenbete kirstian/2.Tabot.mp3',
+                '2.Wudase maryam/7.Zesenbete kirstian/3.Mekdes.mp3',
+                '2.Wudase maryam/7.Zesenbete kirstian/4.Mesobe werk.mp3',
+                '2.Wudase maryam/7.Zesenbete kirstian/5.Tekwam Zewerk.mp3',
+                '2.Wudase maryam/7.Zesenbete kirstian/6.Maetent zewerk.mp3',
+                '2.Wudase maryam/7.Zesenbete kirstian/7.Rigb senayt.mp3',
+                '2.Wudase maryam/7.Zesenbete kirstian/8.betre zron.mp3',
+                '2.Wudase maryam/7.Zesenbete kirstian/9.Leki Yidelu.mp3'
+            ]
         },
         anqetse_birhan: {
-            folder: '30%20anketse%20birhan/',
-            tracksCount: 14,
-            title: 'አንቀጸ ብርሃን (Anqetse Birhan)'
+            title: 'አንቀጸ ብርሃን (Anqetse Birhan)',
+            tracks: [
+                '3.Anketse Birhan/1.Kidst webtset.mp3',
+                '3.Anketse Birhan/2.asertu kalat.mp3',
+                '3.Anketse Birhan/3.Kedimu.mp3',
+                '3.Anketse Birhan/4.Nisht.mp3',
+                '3.Anketse Birhan/5.Gebrel.mp3',
+                '3.Anketse Birhan/6.Zekonki.mp3',
+                '3.Anketse Birhan/7.astemaselnaki.mp3',
+                '3.Anketse Birhan/8.Tekwam.mp3',
+                '3.Anketse Birhan/9.egzia Kulu.mp3',
+                '3.Anketse Birhan/10.Nastemasileki.mp3',
+                '3.Anketse Birhan/11.Etsi Buruk.mp3',
+                '3.Anketse Birhan/12.Betre aron.mp3',
+                '3.Anketse Birhan/13.Leki yidelu.mp3'
+            ]
+        },
+        yiwedsewa_melaekt: {
+            title: 'ይወድስዋ መላእክት (Yiwedsewa Melaekt)',
+            tracks: [
+                '4.Yiwedswa/1.Yiwedswa.mp3',
+                '4.Yiwedswa/2.webesads.mp3',
+                '4.Yiwedswa/3.Yibela.mp3'
+            ]
         }
     }
 };
@@ -383,14 +482,9 @@ const zemaPlayer = {
             const config = ZEMA_CONFIG.prayers[this.currentDay];
             titleEl.textContent = config.title;
             
-            let trackName = `ክፍል ${this.currentTrackIdx} / Section ${this.currentTrackIdx}`;
-            if (this.currentTrackIdx === 1) {
-                trackName = "መቅድም (መግቢያ) / Introduction";
-            } else if (this.currentTrackIdx === config.tracksCount) {
-                if (this.currentDay === 'monday' || this.currentDay === 'tuesday') {
-                    trackName = "ማጠቃለያ / Concluding Prayer";
-                }
-            }
+            const geezNumerals = ["፩", "፪", "፫", "፬", "፭", "፮", "፯", "፰", "፱", "፲", "፲፩", "፲፪", "፲፫", "፲፬", "፲፭"];
+            const geezNum = geezNumerals[this.currentTrackIdx - 1] || this.currentTrackIdx;
+            let trackName = `ክፍል ${geezNum} / Section ${this.currentTrackIdx}`;
             statusEl.textContent = message || trackName;
             
             playBtn.removeAttribute('disabled');
@@ -399,7 +493,7 @@ const zemaPlayer = {
             progress.style.pointerEvents = 'auto';
             progress.style.opacity = '1';
         } else {
-            titleEl.textContent = "ውዳሴ ማርያም ዜማ";
+            titleEl.textContent = "ውዳሴ ማርያም ንባብ";
             statusEl.textContent = message;
             
             playBtn.setAttribute('disabled', 'true');
@@ -431,10 +525,11 @@ const zemaPlayer = {
     playTrack(idx) {
         if (!this.currentDay) return;
         const config = ZEMA_CONFIG.prayers[this.currentDay];
-        if (idx < 1 || idx > config.tracksCount) return;
+        if (idx < 1 || idx > config.tracks.length) return;
         
         this.currentTrackIdx = idx;
-        const url = `${ZEMA_CONFIG.basePath}${config.folder}${idx}.mp3`;
+        const trackPath = config.tracks[idx - 1];
+        const url = `${ZEMA_CONFIG.basePath}${trackPath}`;
         
         this.audio.src = url;
         this.audio.volume = state.audioVolume / 100;
@@ -446,7 +541,7 @@ const zemaPlayer = {
                 this.highlightActiveStanza();
             })
             .catch(err => {
-                console.error("Zema playback failed:", err);
+                console.error("Reading Mode playback failed:", err);
                 this.isPlaying = false;
                 this.updatePlayerUI(true, "መጫወት አልተቻለም / Load failed (check network)");
             });
@@ -482,18 +577,18 @@ const zemaPlayer = {
     
     playPrev() {
         if (!this.currentDay) return;
+        const config = ZEMA_CONFIG.prayers[this.currentDay];
         if (this.currentTrackIdx > 1) {
             this.playTrack(this.currentTrackIdx - 1);
         } else {
-            const config = ZEMA_CONFIG.prayers[this.currentDay];
-            this.playTrack(config.tracksCount);
+            this.playTrack(config.tracks.length);
         }
     },
     
     playNext() {
         if (!this.currentDay) return;
         const config = ZEMA_CONFIG.prayers[this.currentDay];
-        if (this.currentTrackIdx < config.tracksCount) {
+        if (this.currentTrackIdx < config.tracks.length) {
             this.playTrack(this.currentTrackIdx + 1);
         } else {
             this.playTrack(1);
@@ -557,9 +652,7 @@ const zemaPlayer = {
         document.querySelectorAll('.stanza-paragraph').forEach(p => p.classList.remove('active-audio-playing'));
         if (!this.currentDay) return;
         
-        const activeStanzaIdx = this.currentTrackIdx - 1;
-        if (activeStanzaIdx < 1) return;
-        
+        const activeStanzaIdx = this.currentTrackIdx;
         const activeStanzas = document.querySelectorAll(`.stanza-paragraph[data-stanza-idx="${activeStanzaIdx}"]`);
         activeStanzas.forEach(p => {
             p.classList.add('active-audio-playing');
@@ -1231,7 +1324,7 @@ function setupEventListeners() {
         if (p && state.zemaEnabled) {
             const idx = parseInt(p.getAttribute('data-stanza-idx'));
             if (!isNaN(idx)) {
-                zemaPlayer.playTrack(idx + 1);
+                zemaPlayer.playTrack(idx);
             }
         }
     });
